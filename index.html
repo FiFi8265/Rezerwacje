@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Rezerwacji Terminów</title>
+    <title>Zarezerwuj termin w CarTax</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #b8860b 0%, #2c2c2c 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -28,6 +28,7 @@
             padding: 40px;
             max-width: 1200px;
             width: 100%;
+            position: relative;
         }
 
         h1 {
@@ -64,30 +65,30 @@
         }
 
         .tab-buttons {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 30px;
-            gap: 10px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
         }
 
         .tab-button {
-            padding: 12px 30px;
+            padding: 8px 20px;
             border: none;
-            background: #667eea;
+            background: #b8860b;
             color: white;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
             transition: all 0.3s ease;
+            margin-right: 5px;
         }
 
         .tab-button:hover {
-            background: #764ba2;
+            background: #996f0a;
             transform: translateY(-2px);
         }
 
         .tab-button.active {
-            background: #764ba2;
+            background: #996f0a;
         }
 
         .tab-content {
@@ -126,11 +127,11 @@
 
         input:focus, select:focus, textarea:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #b8860b;
         }
 
         button {
-            background: #667eea;
+            background: #b8860b;
             color: white;
             border: none;
             padding: 12px 30px;
@@ -141,7 +142,7 @@
         }
 
         button:hover {
-            background: #764ba2;
+            background: #996f0a;
             transform: translateY(-2px);
         }
 
@@ -180,10 +181,21 @@
             background: #e74c3c;
             padding: 5px 15px;
             font-size: 14px;
+            margin-left: 10px;
         }
 
         .delete-btn:hover {
             background: #c0392b;
+        }
+
+        .edit-btn {
+            background: #3498db;
+            padding: 5px 15px;
+            font-size: 14px;
+        }
+
+        .edit-btn:hover {
+            background: #2980b9;
         }
 
         .calendar-table {
@@ -199,7 +211,7 @@
         }
 
         .calendar-table th {
-            background: #667eea;
+            background: #b8860b;
             color: white;
         }
 
@@ -302,11 +314,166 @@
         .firebase-config input {
             margin-bottom: 10px;
         }
+
+        .collapsible-section {
+            margin-bottom: 20px;
+        }
+
+        .collapsible-header {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .collapsible-header:hover {
+            background: #e9ecef;
+        }
+
+        .collapsible-content {
+            display: none;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .collapsible-content.active {
+            display: block;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            width: 100%;
+        }
+
+        .calendar-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-navigation button {
+            padding: 8px 16px;
+            background: #b8860b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .order-number {
+            background: #f39c12;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .password-form {
+            display: grid;
+            gap: 15px;
+        }
+
+        .password-form .form-group {
+            margin-bottom: 0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: -20px;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .booking-details {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .edit-form {
+            display: none;
+        }
+
+        .edit-form.active {
+            display: block;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .cancel-btn {
+            background: #95a5a6;
+        }
+
+        .cancel-btn:hover {
+            background: #7f8c8d;
+        }
+
+        .client-edit-section {
+            background: #e8f4f8;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>System Rezerwacji Terminów</h1>
+        <div class="tab-buttons">
+            <button class="tab-button" onclick="showTab('client')">Nowa rezerwacja</button>
+            <button class="tab-button" onclick="showTab('edit')">Zmień rezerwację</button>
+            <button class="tab-button" onclick="showTab('admin')">Administrator</button>
+        </div>
+
+        <h1>Zarezerwuj termin w CarTax</h1>
         
         <!-- Konfiguracja Firebase - tylko dla pierwszej instalacji -->
         <div id="firebaseSetup" class="setup-box" style="display: none;">
@@ -336,14 +503,9 @@
         </div>
 
         <div id="mainApp" style="display: none;">
-            <div class="tab-buttons">
-                <button class="tab-button active" onclick="showTab('client')">Klient</button>
-                <button class="tab-button" onclick="showTab('admin')">Administrator</button>
-            </div>
-
-            <!-- Zakładka Klient -->
+            <!-- Zakładka Nowa rezerwacja -->
             <div id="client" class="tab-content active">
-                <h2>Rezerwacja Terminu</h2>
+                <h2>Nowa Rezerwacja</h2>
                 <form id="bookingForm">
                     <div class="form-group">
                         <label>Imię:</label>
@@ -371,10 +533,31 @@
                         <label>Dostępne godziny:</label>
                         <div class="time-slots" id="timeSlots"></div>
                     </div>
+                    <div class="form-group">
+                        <label>Uwagi (opcjonalne):</label>
+                        <textarea id="clientNotes" rows="3" placeholder="Dodatkowe informacje lub uwagi do rezerwacji"></textarea>
+                    </div>
                     <button type="submit" id="submitBooking">Zarezerwuj termin</button>
                 </form>
                 <div id="successMessage" class="success-message" style="display: none;">
                     Termin został pomyślnie zarezerwowany!
+                </div>
+                <div id="orderNumber" class="order-number" style="display: none;"></div>
+            </div>
+
+            <!-- Zakładka Zmień rezerwację -->
+            <div id="edit" class="tab-content">
+                <div class="client-edit-section">
+                    <h2>Zmień swoją rezerwację</h2>
+                    <p style="margin-bottom: 20px;">Wpisz numer swojej rezerwacji, aby móc ją zmodyfikować lub anulować.</p>
+                    
+                    <div class="form-group">
+                        <label>Numer rezerwacji:</label>
+                        <input type="text" id="clientOrderNumber" placeholder="np. CT12345678">
+                    </div>
+                    <button onclick="findClientBooking()">Znajdź rezerwację</button>
+                    
+                    <div id="clientBookingResult" style="margin-top: 20px;"></div>
                 </div>
             </div>
 
@@ -384,7 +567,7 @@
                     <h2>Logowanie administratora</h2>
                     <div class="form-group">
                         <label>Hasło:</label>
-                        <input type="password" id="adminPassword" placeholder="Domyślne hasło: admin">
+                        <input type="password" id="adminPassword" onkeypress="handleEnterKey(event)">
                     </div>
                     <button onclick="loginAdmin()">Zaloguj</button>
                 </div>
@@ -392,76 +575,128 @@
                 <div id="adminPanel" style="display: none;">
                     <h2>Panel Administratora</h2>
                     
-                    <h3>Godziny pracy</h3>
-                    <div class="working-hours">
-                        <div>
-                            <label>Godzina otwarcia:</label>
-                            <input type="time" id="openTime" value="09:00" onchange="updateWorkingHours()">
+                    <!-- Zmiana hasła -->
+                    <div class="collapsible-section">
+                        <div class="collapsible-header" onclick="toggleSection('passwordSection')">
+                            <h3>Zmiana hasła administratora</h3>
+                            <span>▼</span>
                         </div>
-                        <div>
-                            <label>Godzina zamknięcia:</label>
-                            <input type="time" id="closeTime" value="18:00" onchange="updateWorkingHours()">
+                        <div class="collapsible-content" id="passwordSection">
+                            <div class="password-form">
+                                <div class="form-group">
+                                    <label>Aktualne hasło:</label>
+                                    <input type="password" id="currentPassword">
+                                </div>
+                                <div class="form-group">
+                                    <label>Nowe hasło:</label>
+                                    <input type="password" id="newPassword">
+                                </div>
+                                <div class="form-group">
+                                    <label>Potwierdź nowe hasło:</label>
+                                    <input type="password" id="confirmPassword">
+                                </div>
+                                <button onclick="changePassword()">Zmień hasło</button>
+                            </div>
                         </div>
                     </div>
                     
-                    <h4>Dni pracy:</h4>
-                    <div id="workingDays">
-                        <div class="day-checkbox">
-                            <input type="checkbox" id="day-1" checked onchange="updateWorkingDays()">
-                            <label for="day-1">Poniedziałek</label>
+                    <!-- Godziny pracy -->
+                    <div class="collapsible-section">
+                        <div class="collapsible-header" onclick="toggleSection('hoursSection')">
+                            <h3>Godziny pracy</h3>
+                            <span>▼</span>
                         </div>
-                        <div class="day-checkbox">
-                            <input type="checkbox" id="day-2" checked onchange="updateWorkingDays()">
-                            <label for="day-2">Wtorek</label>
-                        </div>
-                        <div class="day-checkbox">
-                            <input type="checkbox" id="day-3" checked onchange="updateWorkingDays()">
-                            <label for="day-3">Środa</label>
-                        </div>
-                        <div class="day-checkbox">
-                            <input type="checkbox" id="day-4" checked onchange="updateWorkingDays()">
-                            <label for="day-4">Czwartek</label>
-                        </div>
-                        <div class="day-checkbox">
-                            <input type="checkbox" id="day-5" checked onchange="updateWorkingDays()">
-                            <label for="day-5">Piątek</label>
-                        </div>
-                        <div class="day-checkbox">
-                            <input type="checkbox" id="day-6" onchange="updateWorkingDays()">
-                            <label for="day-6">Sobota</label>
-                        </div>
-                        <div class="day-checkbox">
-                            <input type="checkbox" id="day-0" onchange="updateWorkingDays()">
-                            <label for="day-0">Niedziela</label>
+                        <div class="collapsible-content" id="hoursSection">
+                            <div class="working-hours">
+                                <div>
+                                    <label>Godzina otwarcia:</label>
+                                    <input type="time" id="openTime" value="09:00" onchange="updateWorkingHours()">
+                                </div>
+                                <div>
+                                    <label>Godzina zamknięcia:</label>
+                                    <input type="time" id="closeTime" value="18:00" onchange="updateWorkingHours()">
+                                </div>
+                            </div>
+                            
+                            <h4>Dni pracy:</h4>
+                            <div id="workingDays">
+                                <div class="day-checkbox">
+                                    <input type="checkbox" id="day-1" checked onchange="updateWorkingDays()">
+                                    <label for="day-1">Poniedziałek</label>
+                                </div>
+                                <div class="day-checkbox">
+                                    <input type="checkbox" id="day-2" checked onchange="updateWorkingDays()">
+                                    <label for="day-2">Wtorek</label>
+                                </div>
+                                <div class="day-checkbox">
+                                    <input type="checkbox" id="day-3" checked onchange="updateWorkingDays()">
+                                    <label for="day-3">Środa</label>
+                                </div>
+                                <div class="day-checkbox">
+                                    <input type="checkbox" id="day-4" checked onchange="updateWorkingDays()">
+                                    <label for="day-4">Czwartek</label>
+                                </div>
+                                <div class="day-checkbox">
+                                    <input type="checkbox" id="day-5" checked onchange="updateWorkingDays()">
+                                    <label for="day-5">Piątek</label>
+                                </div>
+                                <div class="day-checkbox">
+                                    <input type="checkbox" id="day-6" onchange="updateWorkingDays()">
+                                    <label for="day-6">Sobota</label>
+                                </div>
+                                <div class="day-checkbox">
+                                    <input type="checkbox" id="day-0" onchange="updateWorkingDays()">
+                                    <label for="day-0">Niedziela</label>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <h3>Zarządzanie usługami</h3>
-                    <form id="serviceForm" onsubmit="addService(event)">
-                        <div class="form-group">
-                            <label>Nazwa usługi:</label>
-                            <input type="text" id="serviceName" required>
+                    <!-- Zarządzanie usługami -->
+                    <div class="collapsible-section">
+                        <div class="collapsible-header" onclick="toggleSection('servicesSection')">
+                            <h3>Zarządzanie usługami</h3>
+                            <span>▼</span>
                         </div>
-                        <div class="form-group">
-                            <label>Opis usługi:</label>
-                            <textarea id="serviceDescription" rows="3" placeholder="Krótki opis usługi dla klientów"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>Cena (zł):</label>
-                            <input type="number" id="servicePrice" min="0" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Czas trwania (min):</label>
-                            <input type="number" id="serviceDuration" min="15" step="15" required>
-                        </div>
-                        <button type="submit">Dodaj usługę</button>
-                    </form>
+                        <div class="collapsible-content" id="servicesSection">
+                            <form id="serviceForm" onsubmit="addService(event)">
+                                <div class="form-group">
+                                    <label>Nazwa usługi:</label>
+                                    <input type="text" id="serviceName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Opis usługi:</label>
+                                    <textarea id="serviceDescription" rows="3" placeholder="Krótki opis usługi dla klientów"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Cena (zł):</label>
+                                    <input type="number" id="servicePrice" min="0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Czas trwania (min):</label>
+                                    <input type="number" id="serviceDuration" min="15" step="15" required>
+                                </div>
+                                <button type="submit">Dodaj usługę</button>
+                            </form>
 
-                    <div class="service-list" id="serviceList">
-                        <div class="loading">Ładowanie usług...</div>
+                            <div class="service-list" id="serviceList">
+                                <div class="loading">Ładowanie usług...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wyszukiwarka rezerwacji -->
+                    <h3>Wyszukiwarka rezerwacji</h3>
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Szukaj po imieniu, nazwisku, telefonie lub numerze zamówienia..." onkeyup="searchBookings()">
                     </div>
 
                     <h3>Kalendarz rezerwacji</h3>
+                    <div class="calendar-navigation">
+                        <button onclick="changeCalendarWeek(-1)">← Poprzedni tydzień</button>
+                        <span id="currentWeekDisplay"></span>
+                        <button onclick="changeCalendarWeek(1)">Następny tydzień →</button>
+                    </div>
                     <div id="calendarView">
                         <div class="loading">Ładowanie kalendarza...</div>
                     </div>
@@ -474,6 +709,55 @@
                     <button onclick="logout()" style="margin-top: 20px; background: #e74c3c;">
                         Wyloguj
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal do edycji rezerwacji -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h2>Edycja rezerwacji</h2>
+            
+            <div id="currentBookingDetails" class="booking-details"></div>
+            
+            <div id="editBookingForm" class="edit-form">
+                <div class="form-group">
+                    <label>Imię:</label>
+                    <input type="text" id="editFirstName" required>
+                </div>
+                <div class="form-group">
+                    <label>Nazwisko:</label>
+                    <input type="text" id="editLastName" required>
+                </div>
+                <div class="form-group">
+                    <label>Numer telefonu:</label>
+                    <input type="tel" id="editPhone" required>
+                </div>
+                <div class="form-group">
+                    <label>Usługa:</label>
+                    <select id="editServiceSelect" required onchange="updateEditTimeSlots()">
+                        <option value="">-- Wybierz usługę --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Data:</label>
+                    <input type="date" id="editBookingDate" required onchange="updateEditTimeSlots()">
+                </div>
+                <div class="form-group">
+                    <label>Dostępne godziny:</label>
+                    <div class="time-slots" id="editTimeSlots"></div>
+                </div>
+                <div class="form-group">
+                    <label>Uwagi:</label>
+                    <textarea id="editClientNotes" rows="3"></textarea>
+                </div>
+                
+                <div class="button-group">
+                    <button onclick="saveBookingChanges()">Zapisz zmiany</button>
+                    <button class="cancel-btn" onclick="closeEditModal()">Anuluj</button>
+                    <button class="delete-btn" onclick="deleteCurrentBooking()">Usuń rezerwację</button>
                 </div>
             </div>
         </div>
@@ -497,9 +781,14 @@
         // Zmienne globalne
         let db = null;
         let selectedTime = null;
+        let editSelectedTime = null;
+        let currentEditBookingId = null;
         let isAdminLoggedIn = false;
+        let currentWeekOffset = 0;
+        let allBookings = [];
+        let allServices = [];
         let settings = {
-            adminPassword: "tajnehaslo",
+            adminPassword: "admin",
             openTime: "09:00",
             closeTime: "18:00",
             workingDays: [1, 2, 3, 4, 5]
@@ -519,7 +808,374 @@
             
             // Ustaw minimalną datę na dziś
             document.getElementById('bookingDate').min = new Date().toISOString().split('T')[0];
+            document.getElementById('editBookingDate').min = new Date().toISOString().split('T')[0];
+            
+            // Domyślnie pokaż zakładkę klienta
+            showTab('client');
         };
+
+        function handleEnterKey(event) {
+            if (event.key === 'Enter') {
+                loginAdmin();
+            }
+        }
+
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId);
+            const header = content.previousElementSibling;
+            const arrow = header.querySelector('span');
+            
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                arrow.textContent = '▼';
+            } else {
+                content.classList.add('active');
+                arrow.textContent = '▲';
+            }
+        }
+
+        function generateOrderNumber() {
+            return 'CT' + Date.now().toString().slice(-8) + Math.floor(Math.random() * 100).toString().padStart(2, '0');
+        }
+
+        // Funkcje do wyszukiwania rezerwacji przez klienta
+        async function findClientBooking() {
+            const orderNumber = document.getElementById('clientOrderNumber').value.trim();
+            const resultDiv = document.getElementById('clientBookingResult');
+            
+            if (!orderNumber) {
+                resultDiv.innerHTML = '<div class="error-message">Wpisz numer rezerwacji</div>';
+                return;
+            }
+            
+            try {
+                const snapshot = await db.collection('bookings')
+                    .where('orderNumber', '==', orderNumber)
+                    .get();
+                
+                if (snapshot.empty) {
+                    resultDiv.innerHTML = '<div class="error-message">Nie znaleziono rezerwacji o podanym numerze</div>';
+                    return;
+                }
+                
+                const bookingDoc = snapshot.docs[0];
+                const booking = bookingDoc.data();
+                const bookingId = bookingDoc.id;
+                
+                // Pobierz informacje o usłudze
+                const serviceDoc = await db.collection('services').doc(booking.serviceId).get();
+                const service = serviceDoc.exists ? serviceDoc.data() : null;
+                
+                resultDiv.innerHTML = `
+                    <div class="booking-details">
+                        <h3>Twoja rezerwacja</h3>
+                        <p><strong>Numer:</strong> ${booking.orderNumber}</p>
+                        <p><strong>Imię i nazwisko:</strong> ${booking.firstName} ${booking.lastName}</p>
+                        <p><strong>Telefon:</strong> ${booking.phone}</p>
+                        <p><strong>Usługa:</strong> ${service ? service.name : 'Usługa usunięta'}</p>
+                        <p><strong>Data:</strong> ${booking.date}</p>
+                        <p><strong>Godzina:</strong> ${booking.time}</p>
+                        ${booking.notes ? '<p><strong>Uwagi:</strong> ' + booking.notes + '</p>' : ''}
+                        <div class="button-group" style="margin-top: 15px;">
+                            <button onclick="openEditModal('${bookingId}', false)">Zmień rezerwację</button>
+                            <button class="delete-btn" onclick="cancelClientBooking('${bookingId}')">Anuluj rezerwację</button>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Błąd wyszukiwania rezerwacji:', error);
+                resultDiv.innerHTML = '<div class="error-message">Błąd podczas wyszukiwania rezerwacji</div>';
+            }
+        }
+
+        async function cancelClientBooking(bookingId) {
+            if (confirm('Czy na pewno chcesz anulować swoją rezerwację?')) {
+                try {
+                    await db.collection('bookings').doc(bookingId).delete();
+                    document.getElementById('clientBookingResult').innerHTML = 
+                        '<div class="success-message">Rezerwacja została anulowana</div>';
+                    document.getElementById('clientOrderNumber').value = '';
+                } catch (error) {
+                    alert('Błąd podczas anulowania rezerwacji: ' + error.message);
+                }
+            }
+        }
+
+        // Funkcje modala edycji
+        async function openEditModal(bookingId, isAdmin = true) {
+            currentEditBookingId = bookingId;
+            
+            try {
+                const doc = await db.collection('bookings').doc(bookingId).get();
+                if (!doc.exists) {
+                    alert('Rezerwacja nie została znaleziona');
+                    return;
+                }
+                
+                const booking = doc.data();
+                
+                // Pobierz informacje o usłudze
+                const serviceDoc = await db.collection('services').doc(booking.serviceId).get();
+                const service = serviceDoc.exists ? serviceDoc.data() : null;
+                
+                // Wypełnij szczegóły aktualnej rezerwacji
+                document.getElementById('currentBookingDetails').innerHTML = `
+                    <h3>Aktualna rezerwacja</h3>
+                    <p><strong>Numer:</strong> ${booking.orderNumber}</p>
+                    <p><strong>Klient:</strong> ${booking.firstName} ${booking.lastName}</p>
+                    <p><strong>Telefon:</strong> ${booking.phone}</p>
+                    <p><strong>Usługa:</strong> ${service ? service.name : 'Usługa usunięta'}</p>
+                    <p><strong>Data:</strong> ${booking.date}</p>
+                    <p><strong>Godzina:</strong> ${booking.time}</p>
+                    ${booking.notes ? '<p><strong>Uwagi:</strong> ' + booking.notes + '</p>' : ''}
+                `;
+                
+                // Wypełnij formularz edycji
+                document.getElementById('editFirstName').value = booking.firstName;
+                document.getElementById('editLastName').value = booking.lastName;
+                document.getElementById('editPhone').value = booking.phone;
+                document.getElementById('editServiceSelect').value = booking.serviceId;
+                document.getElementById('editBookingDate').value = booking.date;
+                document.getElementById('editClientNotes').value = booking.notes || '';
+                
+                // Załaduj usługi do selecta
+                await loadServicesForEdit();
+                document.getElementById('editServiceSelect').value = booking.serviceId;
+                
+                // Aktualizuj dostępne godziny
+                await updateEditTimeSlots();
+                
+                // Zaznacz aktualną godzinę
+                const timeSlots = document.querySelectorAll('#editTimeSlots .time-slot');
+                timeSlots.forEach(slot => {
+                    if (slot.textContent === booking.time) {
+                        slot.classList.add('selected');
+                        editSelectedTime = booking.time;
+                    }
+                });
+                
+                // Pokaż modal
+                document.getElementById('editModal').style.display = 'block';
+                document.getElementById('editBookingForm').classList.add('active');
+                
+            } catch (error) {
+                console.error('Błąd ładowania rezerwacji:', error);
+                alert('Błąd podczas ładowania danych rezerwacji');
+            }
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            document.getElementById('editBookingForm').classList.remove('active');
+            currentEditBookingId = null;
+            editSelectedTime = null;
+        }
+
+        async function loadServicesForEdit() {
+            const select = document.getElementById('editServiceSelect');
+            select.innerHTML = '<option value="">-- Wybierz usługę --</option>';
+            
+            try {
+                const snapshot = await db.collection('services').orderBy('name').get();
+                snapshot.forEach((doc) => {
+                    const service = doc.data();
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = `${service.name} - ${service.price} zł (${service.duration} min)`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Błąd pobierania usług:', error);
+            }
+        }
+
+        async function updateEditTimeSlots() {
+            const container = document.getElementById('editTimeSlots');
+            const selectedDate = document.getElementById('editBookingDate').value;
+            const selectedServiceId = document.getElementById('editServiceSelect').value;
+            
+            if (!selectedDate) {
+                container.innerHTML = '<p style="color: #999;">Wybierz najpierw datę</p>';
+                return;
+            }
+            
+            const date = new Date(selectedDate);
+            const dayOfWeek = date.getDay();
+            
+            // Sprawdź czy to dzień roboczy
+            if (!settings.workingDays.includes(dayOfWeek)) {
+                container.innerHTML = '<p style="color: #e74c3c;">W tym dniu firma jest nieczynna</p>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            const timeSlots = generateTimeSlots(settings.openTime, settings.closeTime);
+            
+            try {
+                const snapshot = await db.collection('bookings')
+                    .where('date', '==', selectedDate)
+                    .get();
+                
+                const bookings = [];
+                const servicesMap = new Map();
+                
+                // Pobierz wszystkie usługi do mapy
+                const servicesSnapshot = await db.collection('services').get();
+                servicesSnapshot.forEach(doc => {
+                    servicesMap.set(doc.id, doc.data());
+                });
+                
+                // Zbierz rezerwacje z czasem trwania (pomijając edytowaną rezerwację)
+                snapshot.forEach((doc) => {
+                    if (doc.id !== currentEditBookingId) {
+                        const booking = doc.data();
+                        const service = servicesMap.get(booking.serviceId);
+                        if (service) {
+                            bookings.push({
+                                time: booking.time,
+                                duration: service.duration || 30
+                            });
+                        }
+                    }
+                });
+                
+                // Funkcja sprawdzająca czy slot jest zajęty
+                function isSlotBlocked(slotTime) {
+                    const slotMinutes = timeToMinutes(slotTime);
+                    
+                    for (const booking of bookings) {
+                        const bookingStart = timeToMinutes(booking.time);
+                        const bookingEnd = bookingStart + booking.duration;
+                        
+                        if (selectedServiceId) {
+                            const selectedService = servicesMap.get(selectedServiceId);
+                            if (selectedService) {
+                                const ourServiceEnd = slotMinutes + selectedService.duration;
+                                
+                                if ((slotMinutes >= bookingStart && slotMinutes < bookingEnd) ||
+                                    (ourServiceEnd > bookingStart && ourServiceEnd <= bookingEnd) ||
+                                    (slotMinutes <= bookingStart && ourServiceEnd >= bookingEnd)) {
+                                    return true;
+                                }
+                            }
+                        } else {
+                            if (slotMinutes >= bookingStart && slotMinutes < bookingEnd) {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                }
+                
+                function timeToMinutes(time) {
+                    const [hours, minutes] = time.split(':').map(Number);
+                    return hours * 60 + minutes;
+                }
+                
+                timeSlots.forEach(time => {
+                    const slot = document.createElement('div');
+                    slot.className = 'time-slot';
+                    slot.textContent = time;
+                    
+                    if (isSlotBlocked(time)) {
+                        slot.classList.add('booked');
+                        slot.title = 'Termin niedostępny';
+                    } else {
+                        if (selectedServiceId) {
+                            const selectedService = servicesMap.get(selectedServiceId);
+                            if (selectedService) {
+                                const slotMinutes = timeToMinutes(time);
+                                const closeMinutes = timeToMinutes(settings.closeTime);
+                                if (slotMinutes + selectedService.duration > closeMinutes) {
+                                    slot.classList.add('booked');
+                                    slot.title = 'Usługa nie zmieści się przed zamknięciem';
+                                    return;
+                                }
+                            }
+                        }
+                        slot.onclick = () => selectEditTime(time, slot);
+                    }
+                    
+                    container.appendChild(slot);
+                });
+                
+            } catch (error) {
+                console.error('Błąd pobierania rezerwacji:', error);
+            }
+        }
+
+        function selectEditTime(time, element) {
+            document.querySelectorAll('#editTimeSlots .time-slot').forEach(slot => 
+                slot.classList.remove('selected')
+            );
+            
+            element.classList.add('selected');
+            editSelectedTime = time;
+        }
+
+        async function saveBookingChanges() {
+            if (!editSelectedTime) {
+                alert('Wybierz godzinę rezerwacji');
+                return;
+            }
+            
+            const updatedBooking = {
+                firstName: document.getElementById('editFirstName').value,
+                lastName: document.getElementById('editLastName').value,
+                phone: document.getElementById('editPhone').value,
+                serviceId: document.getElementById('editServiceSelect').value,
+                date: document.getElementById('editBookingDate').value,
+                time: editSelectedTime,
+                notes: document.getElementById('editClientNotes').value || ''
+            };
+            
+            try {
+                await db.collection('bookings').doc(currentEditBookingId).update(updatedBooking);
+                alert('Rezerwacja została zaktualizowana');
+                closeEditModal();
+                
+                // Odśwież wyświetlanie
+                if (isAdminLoggedIn) {
+                    updateBookingList();
+                    updateCalendar();
+                }
+                
+                // Jeśli to klient, odśwież wyniki wyszukiwania
+                if (document.getElementById('clientBookingResult').innerHTML !== '') {
+                    findClientBooking();
+                }
+                
+            } catch (error) {
+                alert('Błąd podczas aktualizacji rezerwacji: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        async function deleteCurrentBooking() {
+            if (confirm('Czy na pewno chcesz usunąć tę rezerwację?')) {
+                try {
+                    await db.collection('bookings').doc(currentEditBookingId).delete();
+                    alert('Rezerwacja została usunięta');
+                    closeEditModal();
+                    
+                    // Odśwież wyświetlanie
+                    if (isAdminLoggedIn) {
+                        updateBookingList();
+                        updateCalendar();
+                    }
+                    
+                    // Jeśli to klient, wyczyść wyniki
+                    if (document.getElementById('clientBookingResult').innerHTML !== '') {
+                        document.getElementById('clientBookingResult').innerHTML = 
+                            '<div class="success-message">Rezerwacja została usunięta</div>';
+                        document.getElementById('clientOrderNumber').value = '';
+                    }
+                    
+                } catch (error) {
+                    alert('Błąd podczas usuwania rezerwacji: ' + error.message);
+                }
+            }
+        }
 
         function saveFirebaseConfig() {
             alert('Aby zapisać konfigurację na stałe:\n\n1. Otwórz plik HTML w edytorze tekstu\n2. Znajdź linię "const firebaseConfig = {"\n3. Zastąp wartości "TUTAJ-WKLEJ-..." swoimi danymi\n4. Zapisz plik i wgraj ponownie na GitHub\n\nPo tej operacji formularz konfiguracji zniknie dla wszystkich użytkowników.');
@@ -577,6 +1233,52 @@
             }
         }
 
+        async function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // Sprawdź czy wszystkie pola są wypełnione
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                alert('Wypełnij wszystkie pola');
+                return;
+            }
+            
+            // Sprawdź czy aktualne hasło jest poprawne
+            if (currentPassword !== settings.adminPassword) {
+                alert('Nieprawidłowe aktualne hasło');
+                return;
+            }
+            
+            // Sprawdź czy nowe hasła się zgadzają
+            if (newPassword !== confirmPassword) {
+                alert('Nowe hasła nie są identyczne');
+                return;
+            }
+            
+            // Sprawdź minimalną długość hasła
+            if (newPassword.length < 4) {
+                alert('Nowe hasło musi mieć co najmniej 4 znaki');
+                return;
+            }
+            
+            try {
+                await db.collection('settings').doc('main').update({
+                    adminPassword: newPassword
+                });
+                settings.adminPassword = newPassword;
+                
+                // Wyczyść pola
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+                
+                alert('Hasło zostało pomyślnie zmienione');
+            } catch (error) {
+                alert('Błąd zmiany hasła: ' + error.message);
+            }
+        }
+
         async function updateWorkingHours() {
             settings.openTime = document.getElementById('openTime').value;
             settings.closeTime = document.getElementById('closeTime').value;
@@ -618,12 +1320,80 @@
             buttons.forEach(btn => btn.classList.remove('active'));
             
             document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
+            
+            // Znajdź odpowiedni przycisk i oznacz jako aktywny
+            buttons.forEach(btn => {
+                if ((tabName === 'client' && btn.textContent.includes('Nowa')) ||
+                    (tabName === 'edit' && btn.textContent.includes('Zmień')) ||
+                    (tabName === 'admin' && btn.textContent.includes('Administrator'))) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        function changeCalendarWeek(direction) {
+            currentWeekOffset += direction;
+            updateCalendar();
+        }
+
+        function searchBookings() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filteredBookings = allBookings.filter(booking => {
+                return booking.firstName.toLowerCase().includes(searchTerm) ||
+                       booking.lastName.toLowerCase().includes(searchTerm) ||
+                       booking.phone.includes(searchTerm) ||
+                       (booking.orderNumber && booking.orderNumber.toLowerCase().includes(searchTerm));
+            });
+            displayFilteredBookings(filteredBookings);
+        }
+
+        function displayFilteredBookings(bookings) {
+            const container = document.getElementById('bookingList');
+            container.innerHTML = '';
+            
+            if (bookings.length === 0) {
+                container.innerHTML = '<p style="color: #999;">Brak wyników wyszukiwania</p>';
+                return;
+            }
+            
+            // Pobierz usługi
+            db.collection('services').get().then(servicesSnapshot => {
+                const services = {};
+                servicesSnapshot.forEach(doc => {
+                    services[doc.id] = doc.data();
+                });
+                
+                bookings.forEach((booking) => {
+                    const service = services[booking.serviceId];
+                    const item = document.createElement('div');
+                    item.className = 'booking-item';
+                    item.innerHTML = `
+                        <span>
+                            <strong>${booking.date} ${booking.time}</strong> - 
+                            ${booking.firstName} ${booking.lastName} - 
+                            ${service ? service.name : 'Usługa usunięta'} - 
+                            Tel: ${booking.phone}
+                            ${booking.orderNumber ? '<br><small>Nr zamówienia: ' + booking.orderNumber + '</small>' : ''}
+                            ${booking.notes ? '<br><small>Uwagi: ' + booking.notes + '</small>' : ''}
+                        </span>
+                        <div class="button-group">
+                            <button class="edit-btn" onclick="openEditModal('${booking.id}', true)">Edytuj</button>
+                            <button class="delete-btn" onclick="deleteBooking('${booking.id}')">Usuń</button>
+                        </div>
+                    `;
+                    container.appendChild(item);
+                });
+            });
         }
 
         // Nasłuchiwanie na zmiany w usługach
         function listenToServices() {
             db.collection('services').onSnapshot((snapshot) => {
+                allServices = [];
+                snapshot.forEach(doc => {
+                    allServices.push({ ...doc.data(), id: doc.id });
+                });
+                
                 loadServicesForClient();
                 if (isAdminLoggedIn) {
                     updateServiceList();
@@ -634,6 +1404,12 @@
         // Nasłuchiwanie na zmiany w rezerwacjach
         function listenToBookings() {
             db.collection('bookings').onSnapshot((snapshot) => {
+                // Aktualizuj globalną tablicę rezerwacji
+                allBookings = [];
+                snapshot.forEach(doc => {
+                    allBookings.push({ ...doc.data(), id: doc.id });
+                });
+                
                 const selectedDate = document.getElementById('bookingDate').value;
                 if (selectedDate) {
                     updateTimeSlots();
@@ -683,6 +1459,11 @@
         async function loadBookings() {
             try {
                 const snapshot = await db.collection('bookings').get();
+                allBookings = [];
+                snapshot.forEach(doc => {
+                    allBookings.push({ ...doc.data(), id: doc.id });
+                });
+                
                 if (isAdminLoggedIn) {
                     updateBookingList();
                     updateCalendar();
@@ -903,6 +1684,8 @@
             submitButton.disabled = true;
             submitButton.textContent = 'Zapisywanie...';
             
+            const orderNumber = generateOrderNumber();
+            
             const booking = {
                 firstName: document.getElementById('firstName').value,
                 lastName: document.getElementById('lastName').value,
@@ -910,6 +1693,8 @@
                 serviceId: document.getElementById('serviceSelect').value,
                 date: document.getElementById('bookingDate').value,
                 time: selectedTime,
+                notes: document.getElementById('clientNotes').value || '',
+                orderNumber: orderNumber,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
             
@@ -918,6 +1703,16 @@
                 
                 // Pokaż komunikat sukcesu
                 document.getElementById('successMessage').style.display = 'block';
+                
+                // Pokaż numer zamówienia - USUNIĘTO setTimeout aby nie znikał
+                const orderDiv = document.getElementById('orderNumber');
+                orderDiv.innerHTML = `
+                    <strong>Twój numer zamówienia: ${orderNumber}</strong><br>
+                    <small>Zapisz ten numer - będzie potrzebny w przypadku pytań o rezerwację</small>
+                `;
+                orderDiv.style.display = 'block';
+                
+                // Ukryj tylko komunikat sukcesu po 3 sekundach
                 setTimeout(() => {
                     document.getElementById('successMessage').style.display = 'none';
                 }, 3000);
@@ -963,6 +1758,7 @@
             document.getElementById('loginForm').style.display = 'block';
             document.getElementById('adminPanel').style.display = 'none';
             document.getElementById('adminPassword').value = '';
+            currentWeekOffset = 0;
         }
 
         // Dodawanie usług
@@ -1023,52 +1819,20 @@
         }
 
         async function updateBookingList() {
-            const container = document.getElementById('bookingList');
-            container.innerHTML = '';
-            
-            try {
-                const snapshot = await db.collection('bookings')
-                    .orderBy('date')
-                    .orderBy('time')
-                    .get();
-                
-                if (snapshot.empty) {
-                    container.innerHTML = '<p style="color: #999;">Brak rezerwacji</p>';
-                    return;
-                }
-                
-                const services = {};
-                const servicesSnapshot = await db.collection('services').get();
-                servicesSnapshot.forEach(doc => {
-                    services[doc.id] = doc.data();
-                });
-                
-                snapshot.forEach((doc) => {
-                    const booking = doc.data();
-                    const service = services[booking.serviceId];
-                    const item = document.createElement('div');
-                    item.className = 'booking-item';
-                    item.innerHTML = `
-                        <span>
-                            <strong>${booking.date} ${booking.time}</strong> - 
-                            ${booking.firstName} ${booking.lastName} - 
-                            ${service ? service.name : 'Usługa usunięta'} - 
-                            Tel: ${booking.phone}
-                        </span>
-                        <button class="delete-btn" onclick="deleteBooking('${doc.id}')">Usuń</button>
-                    `;
-                    container.appendChild(item);
-                });
-            } catch (error) {
-                container.innerHTML = '<p style="color: #e74c3c;">Błąd ładowania rezerwacji</p>';
-                console.error(error);
-            }
+            displayFilteredBookings(allBookings);
         }
 
         async function updateCalendar() {
             const container = document.getElementById('calendarView');
             const today = new Date();
+            today.setDate(today.getDate() + (currentWeekOffset * 7));
             const currentWeek = getWeekDates(today);
+            
+            // Aktualizuj wyświetlanie aktualnego tygodnia
+            const weekDisplay = document.getElementById('currentWeekDisplay');
+            const startDate = currentWeek[0];
+            const endDate = currentWeek[6];
+            weekDisplay.textContent = `${startDate.getDate()}.${startDate.getMonth() + 1}.${startDate.getFullYear()} - ${endDate.getDate()}.${endDate.getMonth() + 1}.${endDate.getFullYear()}`;
             
             let html = '<table class="calendar-table"><tr><th>Godzina</th>';
             
@@ -1126,9 +1890,10 @@
                             if (booking) {
                                 const service = services[booking.serviceId];
                                 html += `<td>
-                                    <div class="booking-slot" onclick="showBookingDetails('${booking.id}')">
+                                    <div class="booking-slot" onclick="openEditModal('${booking.id}', true)">
                                         ${booking.firstName} ${booking.lastName.charAt(0)}.<br>
                                         ${service ? service.name : ''}
+                                        ${booking.orderNumber ? '<br><small>' + booking.orderNumber + '</small>' : ''}
                                     </div>
                                 </td>`;
                             } else {
@@ -1200,12 +1965,22 @@
                     const serviceDoc = await db.collection('services').doc(booking.serviceId).get();
                     const service = serviceDoc.exists ? serviceDoc.data() : null;
                     
-                    alert(`Rezerwacja:
+                    let details = `Rezerwacja:
 Klient: ${booking.firstName} ${booking.lastName}
 Telefon: ${booking.phone}
 Usługa: ${service ? service.name : 'Usługa usunięta'}
 Data: ${booking.date}
-Godzina: ${booking.time}`);
+Godzina: ${booking.time}`;
+                    
+                    if (booking.orderNumber) {
+                        details += `\nNumer zamówienia: ${booking.orderNumber}`;
+                    }
+                    
+                    if (booking.notes) {
+                        details += `\nUwagi: ${booking.notes}`;
+                    }
+                    
+                    alert(details);
                 }
             } catch (error) {
                 console.error('Błąd pobierania szczegółów:', error);
