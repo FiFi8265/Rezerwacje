@@ -308,28 +308,31 @@
     <div class="container">
         <h1>System Rezerwacji Terminów</h1>
         
-        <!-- Konfiguracja Firebase -->
-        <div id="firebaseSetup" class="setup-box">
-            <h3>⚠️ Konfiguracja Firebase</h3>
-            <p>Aby aplikacja mogła zapisywać dane, musisz skonfigurować Firebase:</p>
+        <!-- Konfiguracja Firebase - tylko dla pierwszej instalacji -->
+        <div id="firebaseSetup" class="setup-box" style="display: none;">
+            <h3>⚠️ Konfiguracja Firebase - TYLKO DLA ADMINISTRATORA</h3>
+            <p style="color: #fff3cd; background: #856404; padding: 10px; border-radius: 5px;">
+                <strong>UWAGA:</strong> Ten formularz jest widoczny tylko dlatego, że nie uzupełniłeś danych Firebase w kodzie.
+                Po uzupełnieniu danych w pliku HTML, ten formularz zniknie dla wszystkich użytkowników.
+            </p>
+            <p>Instrukcja:</p>
             <ol>
-                <li>Wejdź na <a href="https://console.firebase.google.com" target="_blank" style="color: white;">console.firebase.google.com</a></li>
-                <li>Stwórz nowy projekt (lub użyj istniejącego)</li>
-                <li>Kliknij "Dodaj aplikację" → wybierz Web (ikona &lt;/&gt;)</li>
-                <li>Skopiuj dane konfiguracyjne i wklej poniżej:</li>
+                <li>Otwórz plik HTML w edytorze tekstu (np. Notepad++, VS Code)</li>
+                <li>Znajdź sekcję z kodem:<br>
+                    <code>const firebaseConfig = {</code></li>
+                <li>Zastąp wszystkie wartości "TUTAJ-WKLEJ-..." swoimi danymi z Firebase</li>
+                <li>Zapisz plik i wgraj ponownie na GitHub</li>
             </ol>
             
-            <div class="firebase-config">
-                <input type="text" id="apiKey" placeholder="API Key">
-                <input type="text" id="authDomain" placeholder="Auth Domain (np. projekt.firebaseapp.com)">
-                <input type="text" id="projectId" placeholder="Project ID">
-                <input type="text" id="storageBucket" placeholder="Storage Bucket">
-                <input type="text" id="messagingSenderId" placeholder="Messaging Sender ID">
-                <input type="text" id="appId" placeholder="App ID">
-                <button onclick="saveFirebaseConfig()">Zapisz konfigurację</button>
-            </div>
-            
-            <p style="margin-top: 15px;"><strong>Ważne:</strong> Po zapisaniu konfiguracji, włącz Firestore Database w konsoli Firebase (Create Database → Start in test mode).</p>
+            <p style="margin-top: 15px;"><strong>Twoje dane Firebase:</strong></p>
+            <div class="firebase-config" style="background: white; color: black; padding: 15px; font-family: monospace; white-space: pre-wrap;">const firebaseConfig = {
+    apiKey: "twój-api-key-tutaj",
+    authDomain: "twój-auth-domain.firebaseapp.com",
+    projectId: "twój-project-id",
+    storageBucket: "twój-storage-bucket.appspot.com",
+    messagingSenderId: "twój-sender-id",
+    appId: "twój-app-id"
+};</div>
         </div>
 
         <div id="mainApp" style="display: none;">
@@ -481,6 +484,16 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <script>
+        // TUTAJ WKLEJ SWOJE DANE Z FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVZj2P7xApaZI-QjjwH8hP92tvVc5EehQ",
+            authDomain: "moja-firma-rezerwacje.firebaseapp.com",
+            projectId: "moja-firma-rezerwacje",
+            storageBucket: "moja-firma-rezerwacje.firebasestorage.app",
+            messagingSenderId: "460839390500",
+            appId: "1:460839390500:web:cabc1186e077d642b037b1"
+        };
+
         // Zmienne globalne
         let db = null;
         let selectedTime = null;
@@ -492,35 +505,24 @@
             workingDays: [1, 2, 3, 4, 5]
         };
 
-        // Sprawdź czy jest zapisana konfiguracja
+        // Inicjalizacja przy załadowaniu strony
         window.onload = function() {
-            const savedConfig = localStorage.getItem('firebaseConfig');
-            if (savedConfig) {
-                initializeFirebase(JSON.parse(savedConfig));
+            // Sprawdź czy dane Firebase są uzupełnione
+            if (firebaseConfig.apiKey === "TUTAJ-WKLEJ-API-KEY") {
+                document.getElementById('firebaseSetup').style.display = 'block';
+                document.getElementById('mainApp').style.display = 'none';
+                return;
             }
+            
+            // Inicjalizuj Firebase
+            initializeFirebase(firebaseConfig);
             
             // Ustaw minimalną datę na dziś
             document.getElementById('bookingDate').min = new Date().toISOString().split('T')[0];
         };
 
         function saveFirebaseConfig() {
-            const config = {
-                apiKey: document.getElementById('apiKey').value,
-                authDomain: document.getElementById('authDomain').value,
-                projectId: document.getElementById('projectId').value,
-                storageBucket: document.getElementById('storageBucket').value,
-                messagingSenderId: document.getElementById('messagingSenderId').value,
-                appId: document.getElementById('appId').value
-            };
-
-            // Sprawdź czy wszystkie pola są wypełnione
-            if (!config.apiKey || !config.authDomain || !config.projectId) {
-                alert('Wypełnij przynajmniej API Key, Auth Domain i Project ID');
-                return;
-            }
-
-            localStorage.setItem('firebaseConfig', JSON.stringify(config));
-            initializeFirebase(config);
+            alert('Aby zapisać konfigurację na stałe:\n\n1. Otwórz plik HTML w edytorze tekstu\n2. Znajdź linię "const firebaseConfig = {"\n3. Zastąp wartości "TUTAJ-WKLEJ-..." swoimi danymi\n4. Zapisz plik i wgraj ponownie na GitHub\n\nPo tej operacji formularz konfiguracji zniknie dla wszystkich użytkowników.');
         }
 
         function initializeFirebase(config) {
