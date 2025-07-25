@@ -202,12 +202,16 @@
             width: 100%;
             margin-top: 20px;
             border-collapse: collapse;
+            overflow-x: auto;
+            display: block;
+            white-space: nowrap;
         }
 
         .calendar-table th, .calendar-table td {
             border: 1px solid #ddd;
             padding: 10px;
             text-align: center;
+            min-width: 80px;
         }
 
         .calendar-table th {
@@ -463,6 +467,153 @@
             border-radius: 8px;
             margin-bottom: 30px;
         }
+
+        .car-fields {
+            display: none;
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .car-fields.active {
+            display: block;
+        }
+
+        .car-fields h4 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+
+        /* Responsywność dla telefonów */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+                margin-bottom: 20px;
+            }
+
+            .tab-buttons {
+                position: static;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                margin-bottom: 20px;
+                gap: 5px;
+            }
+
+            .tab-button {
+                padding: 6px 12px;
+                font-size: 12px;
+                margin-right: 0;
+            }
+
+            .time-slots {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+                gap: 5px;
+            }
+
+            .time-slot {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .working-hours {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .button-group button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .service-item, .booking-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .calendar-table {
+                font-size: 12px;
+            }
+
+            .calendar-table th, .calendar-table td {
+                padding: 5px;
+                min-width: 60px;
+            }
+
+            .booking-slot {
+                font-size: 10px;
+                padding: 1px 3px;
+            }
+
+            .modal-content {
+                margin: 2% auto;
+                padding: 20px;
+                width: 95%;
+                max-height: 90vh;
+            }
+
+            .calendar-navigation {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .calendar-navigation button {
+                width: 100%;
+            }
+
+            input, select, textarea, button {
+                font-size: 16px; /* Zapobiega zoom na iOS */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .tab-button {
+                padding: 5px 8px;
+                font-size: 11px;
+            }
+
+            .time-slots {
+                grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            }
+
+            .collapsible-header {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .collapsible-content {
+                padding: 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -521,10 +672,28 @@
                     </div>
                     <div class="form-group">
                         <label>Wybierz usługę:</label>
-                        <select id="serviceSelect" required onchange="updateTimeSlots()">
+                        <select id="serviceSelect" required onchange="updateTimeSlots(); toggleCarFields();">
                             <option value="">-- Wybierz usługę --</option>
                         </select>
                     </div>
+                    
+                    <!-- Pola danych auta -->
+                    <div id="carFields" class="car-fields">
+                        <h4>Dane pojazdu</h4>
+                        <div class="form-group">
+                            <label>Marka pojazdu:</label>
+                            <input type="text" id="carBrand">
+                        </div>
+                        <div class="form-group">
+                            <label>Model pojazdu:</label>
+                            <input type="text" id="carModel">
+                        </div>
+                        <div class="form-group">
+                            <label>Rok produkcji:</label>
+                            <input type="number" id="carYear" min="1900" max="2030">
+                        </div>
+                    </div>
+                    
                     <div class="form-group">
                         <label>Data:</label>
                         <input type="date" id="bookingDate" required onchange="updateTimeSlots()">
@@ -676,6 +845,10 @@
                                     <label>Czas trwania (min):</label>
                                     <input type="number" id="serviceDuration" min="15" step="15" required>
                                 </div>
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="requireCarData">
+                                    <label for="requireCarData">Wymagaj danych pojazdu (marka, model, rok)</label>
+                                </div>
                                 <button type="submit">Dodaj usługę</button>
                             </form>
 
@@ -737,10 +910,28 @@
                 </div>
                 <div class="form-group">
                     <label>Usługa:</label>
-                    <select id="editServiceSelect" required onchange="updateEditTimeSlots()">
+                    <select id="editServiceSelect" required onchange="updateEditTimeSlots(); toggleEditCarFields();">
                         <option value="">-- Wybierz usługę --</option>
                     </select>
                 </div>
+                
+                <!-- Pola danych auta w edycji -->
+                <div id="editCarFields" class="car-fields">
+                    <h4>Dane pojazdu</h4>
+                    <div class="form-group">
+                        <label>Marka pojazdu:</label>
+                        <input type="text" id="editCarBrand">
+                    </div>
+                    <div class="form-group">
+                        <label>Model pojazdu:</label>
+                        <input type="text" id="editCarModel">
+                    </div>
+                    <div class="form-group">
+                        <label>Rok produkcji:</label>
+                        <input type="number" id="editCarYear" min="1900" max="2030">
+                    </div>
+                </div>
+                
                 <div class="form-group">
                     <label>Data:</label>
                     <input type="date" id="editBookingDate" required onchange="updateEditTimeSlots()">
@@ -814,6 +1005,61 @@
             showTab('client');
         };
 
+        // Funkcje do obsługi pól danych auta
+        function toggleCarFields() {
+            const serviceId = document.getElementById('serviceSelect').value;
+            const carFields = document.getElementById('carFields');
+            
+            if (serviceId) {
+                // Znajdź usługę w globalnej tablicy
+                const service = allServices.find(s => s.id === serviceId);
+                if (service && service.requireCarData) {
+                    carFields.classList.add('active');
+                    // Ustaw pola jako wymagane
+                    document.getElementById('carBrand').required = true;
+                    document.getElementById('carModel').required = true;
+                    document.getElementById('carYear').required = true;
+                } else {
+                    carFields.classList.remove('active');
+                    // Usuń wymaganie pól
+                    document.getElementById('carBrand').required = false;
+                    document.getElementById('carModel').required = false;
+                    document.getElementById('carYear').required = false;
+                    // Wyczyść pola
+                    document.getElementById('carBrand').value = '';
+                    document.getElementById('carModel').value = '';
+                    document.getElementById('carYear').value = '';
+                }
+            } else {
+                carFields.classList.remove('active');
+            }
+        }
+
+        function toggleEditCarFields() {
+            const serviceId = document.getElementById('editServiceSelect').value;
+            const carFields = document.getElementById('editCarFields');
+            
+            if (serviceId) {
+                // Znajdź usługę w globalnej tablicy
+                const service = allServices.find(s => s.id === serviceId);
+                if (service && service.requireCarData) {
+                    carFields.classList.add('active');
+                    // Ustaw pola jako wymagane
+                    document.getElementById('editCarBrand').required = true;
+                    document.getElementById('editCarModel').required = true;
+                    document.getElementById('editCarYear').required = true;
+                } else {
+                    carFields.classList.remove('active');
+                    // Usuń wymaganie pól
+                    document.getElementById('editCarBrand').required = false;
+                    document.getElementById('editCarModel').required = false;
+                    document.getElementById('editCarYear').required = false;
+                }
+            } else {
+                carFields.classList.remove('active');
+            }
+        }
+
         function handleEnterKey(event) {
             if (event.key === 'Enter') {
                 loginAdmin();
@@ -866,6 +1112,11 @@
                 const serviceDoc = await db.collection('services').doc(booking.serviceId).get();
                 const service = serviceDoc.exists ? serviceDoc.data() : null;
                 
+                let carInfo = '';
+                if (booking.carBrand || booking.carModel || booking.carYear) {
+                    carInfo = `<p><strong>Pojazd:</strong> ${booking.carBrand || ''} ${booking.carModel || ''} ${booking.carYear || ''}</p>`;
+                }
+                
                 resultDiv.innerHTML = `
                     <div class="booking-details">
                         <h3>Twoja rezerwacja</h3>
@@ -873,6 +1124,7 @@
                         <p><strong>Imię i nazwisko:</strong> ${booking.firstName} ${booking.lastName}</p>
                         <p><strong>Telefon:</strong> ${booking.phone}</p>
                         <p><strong>Usługa:</strong> ${service ? service.name : 'Usługa usunięta'}</p>
+                        ${carInfo}
                         <p><strong>Data:</strong> ${booking.date}</p>
                         <p><strong>Godzina:</strong> ${booking.time}</p>
                         ${booking.notes ? '<p><strong>Uwagi:</strong> ' + booking.notes + '</p>' : ''}
@@ -918,6 +1170,11 @@
                 const serviceDoc = await db.collection('services').doc(booking.serviceId).get();
                 const service = serviceDoc.exists ? serviceDoc.data() : null;
                 
+                let carInfo = '';
+                if (booking.carBrand || booking.carModel || booking.carYear) {
+                    carInfo = `<p><strong>Pojazd:</strong> ${booking.carBrand || ''} ${booking.carModel || ''} ${booking.carYear || ''}</p>`;
+                }
+                
                 // Wypełnij szczegóły aktualnej rezerwacji
                 document.getElementById('currentBookingDetails').innerHTML = `
                     <h3>Aktualna rezerwacja</h3>
@@ -925,6 +1182,7 @@
                     <p><strong>Klient:</strong> ${booking.firstName} ${booking.lastName}</p>
                     <p><strong>Telefon:</strong> ${booking.phone}</p>
                     <p><strong>Usługa:</strong> ${service ? service.name : 'Usługa usunięta'}</p>
+                    ${carInfo}
                     <p><strong>Data:</strong> ${booking.date}</p>
                     <p><strong>Godzina:</strong> ${booking.time}</p>
                     ${booking.notes ? '<p><strong>Uwagi:</strong> ' + booking.notes + '</p>' : ''}
@@ -938,9 +1196,17 @@
                 document.getElementById('editBookingDate').value = booking.date;
                 document.getElementById('editClientNotes').value = booking.notes || '';
                 
+                // Wypełnij dane auta jeśli istnieją
+                document.getElementById('editCarBrand').value = booking.carBrand || '';
+                document.getElementById('editCarModel').value = booking.carModel || '';
+                document.getElementById('editCarYear').value = booking.carYear || '';
+                
                 // Załaduj usługi do selecta
                 await loadServicesForEdit();
                 document.getElementById('editServiceSelect').value = booking.serviceId;
+                
+                // Pokaż/ukryj pola auta
+                toggleEditCarFields();
                 
                 // Aktualizuj dostępne godziny
                 await updateEditTimeSlots();
@@ -1119,15 +1385,42 @@
                 return;
             }
             
+            // Sprawdź czy dane auta są wymagane
+            const serviceId = document.getElementById('editServiceSelect').value;
+            const service = allServices.find(s => s.id === serviceId);
+            
+            if (service && service.requireCarData) {
+                const carBrand = document.getElementById('editCarBrand').value.trim();
+                const carModel = document.getElementById('editCarModel').value.trim();
+                const carYear = document.getElementById('editCarYear').value.trim();
+                
+                if (!carBrand || !carModel || !carYear) {
+                    alert('Wypełnij wszystkie dane pojazdu');
+                    return;
+                }
+            }
+            
             const updatedBooking = {
                 firstName: document.getElementById('editFirstName').value,
                 lastName: document.getElementById('editLastName').value,
                 phone: document.getElementById('editPhone').value,
-                serviceId: document.getElementById('editServiceSelect').value,
+                serviceId: serviceId,
                 date: document.getElementById('editBookingDate').value,
                 time: editSelectedTime,
                 notes: document.getElementById('editClientNotes').value || ''
             };
+            
+            // Dodaj dane auta jeśli są wymagane
+            if (service && service.requireCarData) {
+                updatedBooking.carBrand = document.getElementById('editCarBrand').value.trim();
+                updatedBooking.carModel = document.getElementById('editCarModel').value.trim();
+                updatedBooking.carYear = document.getElementById('editCarYear').value.trim();
+            } else {
+                // Usuń dane auta jeśli nie są wymagane
+                updatedBooking.carBrand = firebase.firestore.FieldValue.delete();
+                updatedBooking.carModel = firebase.firestore.FieldValue.delete();
+                updatedBooking.carYear = firebase.firestore.FieldValue.delete();
+            }
             
             try {
                 await db.collection('bookings').doc(currentEditBookingId).update(updatedBooking);
@@ -1342,7 +1635,9 @@
                 return booking.firstName.toLowerCase().includes(searchTerm) ||
                        booking.lastName.toLowerCase().includes(searchTerm) ||
                        booking.phone.includes(searchTerm) ||
-                       (booking.orderNumber && booking.orderNumber.toLowerCase().includes(searchTerm));
+                       (booking.orderNumber && booking.orderNumber.toLowerCase().includes(searchTerm)) ||
+                       (booking.carBrand && booking.carBrand.toLowerCase().includes(searchTerm)) ||
+                       (booking.carModel && booking.carModel.toLowerCase().includes(searchTerm));
             });
             displayFilteredBookings(filteredBookings);
         }
@@ -1365,6 +1660,11 @@
                 
                 bookings.forEach((booking) => {
                     const service = services[booking.serviceId];
+                    let carInfo = '';
+                    if (booking.carBrand || booking.carModel || booking.carYear) {
+                        carInfo = `<br><small>Pojazd: ${booking.carBrand || ''} ${booking.carModel || ''} ${booking.carYear || ''}</small>`;
+                    }
+                    
                     const item = document.createElement('div');
                     item.className = 'booking-item';
                     item.innerHTML = `
@@ -1373,6 +1673,7 @@
                             ${booking.firstName} ${booking.lastName} - 
                             ${service ? service.name : 'Usługa usunięta'} - 
                             Tel: ${booking.phone}
+                            ${carInfo}
                             ${booking.orderNumber ? '<br><small>Nr zamówienia: ' + booking.orderNumber + '</small>' : ''}
                             ${booking.notes ? '<br><small>Uwagi: ' + booking.notes + '</small>' : ''}
                         </span>
@@ -1680,6 +1981,21 @@
                 return;
             }
             
+            // Sprawdź czy dane auta są wymagane
+            const serviceId = document.getElementById('serviceSelect').value;
+            const service = allServices.find(s => s.id === serviceId);
+            
+            if (service && service.requireCarData) {
+                const carBrand = document.getElementById('carBrand').value.trim();
+                const carModel = document.getElementById('carModel').value.trim();
+                const carYear = document.getElementById('carYear').value.trim();
+                
+                if (!carBrand || !carModel || !carYear) {
+                    alert('Wypełnij wszystkie dane pojazdu');
+                    return;
+                }
+            }
+            
             const submitButton = document.getElementById('submitBooking');
             submitButton.disabled = true;
             submitButton.textContent = 'Zapisywanie...';
@@ -1690,13 +2006,20 @@
                 firstName: document.getElementById('firstName').value,
                 lastName: document.getElementById('lastName').value,
                 phone: document.getElementById('phone').value,
-                serviceId: document.getElementById('serviceSelect').value,
+                serviceId: serviceId,
                 date: document.getElementById('bookingDate').value,
                 time: selectedTime,
                 notes: document.getElementById('clientNotes').value || '',
                 orderNumber: orderNumber,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
+            
+            // Dodaj dane auta jeśli są wymagane
+            if (service && service.requireCarData) {
+                booking.carBrand = document.getElementById('carBrand').value.trim();
+                booking.carModel = document.getElementById('carModel').value.trim();
+                booking.carYear = document.getElementById('carYear').value.trim();
+            }
             
             try {
                 await db.collection('bookings').add(booking);
@@ -1720,6 +2043,7 @@
                 // Wyczyść formularz
                 this.reset();
                 selectedTime = null;
+                document.getElementById('carFields').classList.remove('active');
                 updateTimeSlots();
                 
             } catch (error) {
@@ -1769,7 +2093,8 @@
                 name: document.getElementById('serviceName').value,
                 description: document.getElementById('serviceDescription').value || '',
                 price: parseInt(document.getElementById('servicePrice').value),
-                duration: parseInt(document.getElementById('serviceDuration').value)
+                duration: parseInt(document.getElementById('serviceDuration').value),
+                requireCarData: document.getElementById('requireCarData').checked
             };
             
             try {
@@ -1806,6 +2131,7 @@
                     item.innerHTML = `
                         <span>
                             <strong>${service.name}</strong> - ${service.price} zł (${service.duration} min)
+                            ${service.requireCarData ? '<br><small style="color: #e67e22;">⚠️ Wymaga danych pojazdu</small>' : ''}
                             ${service.description ? '<div class="service-description">' + service.description + '</div>' : ''}
                         </span>
                         <button class="delete-btn" onclick="deleteService('${doc.id}')">Usuń</button>
@@ -1971,6 +2297,10 @@ Telefon: ${booking.phone}
 Usługa: ${service ? service.name : 'Usługa usunięta'}
 Data: ${booking.date}
 Godzina: ${booking.time}`;
+                    
+                    if (booking.carBrand || booking.carModel || booking.carYear) {
+                        details += `\nPojazd: ${booking.carBrand || ''} ${booking.carModel || ''} ${booking.carYear || ''}`;
+                    }
                     
                     if (booking.orderNumber) {
                         details += `\nNumer zamówienia: ${booking.orderNumber}`;
