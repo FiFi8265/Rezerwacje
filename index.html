@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zarezerwuj termin w CarTax</title>
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -198,6 +200,16 @@
             background: #2980b9;
         }
 
+        .archive-btn {
+            background: #95a5a6;
+            padding: 5px 15px;
+            font-size: 14px;
+        }
+
+        .archive-btn:hover {
+            background: #7f8c8d;
+        }
+
         .calendar-table {
             width: 100%;
             margin-top: 20px;
@@ -226,13 +238,16 @@
         }
 
         .booking-slot {
-            background: #3498db;
             color: white;
             padding: 2px 5px;
             margin: 2px;
             border-radius: 3px;
             font-size: 11px;
             cursor: pointer;
+        }
+
+        .booking-slot.archived {
+            background: #95a5a6 !important;
         }
 
         .success-message {
@@ -496,6 +511,35 @@
             width: auto;
         }
 
+        .color-picker-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .color-picker-group input[type="color"] {
+            width: 50px;
+            height: 40px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .archive-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .archive-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
         /* Responsywność dla telefonów */
         @media (max-width: 768px) {
             .container {
@@ -579,6 +623,14 @@
             }
 
             .calendar-navigation button {
+                width: 100%;
+            }
+
+            .archive-controls {
+                flex-direction: column;
+            }
+
+            .archive-controls button {
                 width: 100%;
             }
 
@@ -667,6 +719,11 @@
                         <input type="text" id="lastName" required>
                     </div>
                     <div class="form-group">
+                        <label>Adres email:</label>
+                        <input type="email" id="clientEmail" required placeholder="twoj@email.com">
+                        <small style="color: #666;">Na ten adres otrzymasz potwierdzenie rezerwacji</small>
+                    </div>
+                    <div class="form-group">
                         <label>Numer telefonu:</label>
                         <input type="tel" id="phone" required>
                     </div>
@@ -709,7 +766,7 @@
                     <button type="submit" id="submitBooking">Zarezerwuj termin</button>
                 </form>
                 <div id="successMessage" class="success-message" style="display: none;">
-                    Termin został pomyślnie zarezerwowany!
+                    Termin został pomyślnie zarezerwowany! Potwierdzenie zostało wysłane na Twój email.
                 </div>
                 <div id="orderNumber" class="order-number" style="display: none;"></div>
             </div>
@@ -849,6 +906,10 @@
                                     <input type="checkbox" id="requireCarData">
                                     <label for="requireCarData">Wymagaj danych pojazdu (marka, model, rok)</label>
                                 </div>
+                                <div class="color-picker-group">
+                                    <label for="serviceColor">Kolor w kalendarzu:</label>
+                                    <input type="color" id="serviceColor" value="#3498db">
+                                </div>
                                 <button type="submit">Dodaj usługę</button>
                             </form>
 
@@ -858,10 +919,20 @@
                         </div>
                     </div>
 
+                    <!-- Archiwizacja -->
+                    <div class="archive-section">
+                        <h3>Archiwizacja rezerwacji</h3>
+                        <p>Automatycznie archiwizuj stare rezerwacje po upływie terminu:</p>
+                        <div class="archive-controls">
+                            <button onclick="archiveOldBookings()">Archiwizuj stare rezerwacje</button>
+                            <button onclick="showArchivedBookings()" class="archive-btn">Pokaż archiwalne rezerwacje</button>
+                        </div>
+                    </div>
+
                     <!-- Wyszukiwarka rezerwacji -->
-                    <h3>Wyszukiwarka rezerwacji</h3>
+                    <h3>Wyszukiwarka aktywnych rezerwacji</h3>
                     <div class="search-box">
-                        <input type="text" id="searchInput" placeholder="Szukaj po imieniu, nazwisku, telefonie lub numerze zamówienia..." onkeyup="searchBookings()">
+                        <input type="text" id="searchInput" placeholder="Szukaj po imieniu, nazwisku, telefonie, emailu lub numerze zamówienia..." onkeyup="searchBookings()">
                     </div>
 
                     <h3>Kalendarz rezerwacji</h3>
@@ -874,7 +945,7 @@
                         <div class="loading">Ładowanie kalendarza...</div>
                     </div>
 
-                    <h3>Lista wszystkich rezerwacji</h3>
+                    <h3>Lista aktywnych rezerwacji</h3>
                     <div class="booking-list" id="bookingList">
                         <div class="loading">Ładowanie rezerwacji...</div>
                     </div>
@@ -903,6 +974,10 @@
                 <div class="form-group">
                     <label>Nazwisko:</label>
                     <input type="text" id="editLastName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="editEmail" required>
                 </div>
                 <div class="form-group">
                     <label>Numer telefonu:</label>
@@ -954,6 +1029,33 @@
         </div>
     </div>
 
+    <!-- Modal do archiwum -->
+    <div id="archiveModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeArchiveModal()">&times;</span>
+            <h2>Archiwalne rezerwacje</h2>
+            
+            <div class="search-box">
+                <input type="text" id="archiveSearchInput" placeholder="Szukaj w archiwum..." onkeyup="searchArchivedBookings()">
+            </div>
+
+            <div class="calendar-navigation">
+                <button onclick="changeArchiveCalendarWeek(-1)">← Poprzedni tydzień</button>
+                <span id="archiveCurrentWeekDisplay"></span>
+                <button onclick="changeArchiveCalendarWeek(1)">Następny tydzień →</button>
+            </div>
+            
+            <div id="archiveCalendarView">
+                <div class="loading">Ładowanie archiwum kalendarza...</div>
+            </div>
+
+            <h3>Lista archiwalnych rezerwacji</h3>
+            <div class="booking-list" id="archiveBookingList">
+                <div class="loading">Ładowanie archiwum...</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -969,6 +1071,13 @@
             appId: "1:460839390500:web:cabc1186e077d642b037b1"
         };
 
+        // TUTAJ WKLEJ SWOJE DANE Z EMAILJS
+        const emailJSConfig = {
+            publicKey: "oauFkFfwe4Cbewgrn", // np. "user_abcd1234"
+            serviceId: "service_CarTax", // np. "service_gmail"
+            templateId: "template_test" // np. "template_booking"
+        };
+
         // Zmienne globalne
         let db = null;
         let selectedTime = null;
@@ -976,8 +1085,10 @@
         let currentEditBookingId = null;
         let isAdminLoggedIn = false;
         let currentWeekOffset = 0;
+        let archiveWeekOffset = 0;
         let allBookings = [];
         let allServices = [];
+        let archivedBookings = [];
         let settings = {
             adminPassword: "admin",
             openTime: "09:00",
@@ -994,8 +1105,9 @@
                 return;
             }
             
-            // Inicjalizuj Firebase
+            // Inicjalizuj Firebase i EmailJS
             initializeFirebase(firebaseConfig);
+            initializeEmailJS();
             
             // Ustaw minimalną datę na dziś
             document.getElementById('bookingDate').min = new Date().toISOString().split('T')[0];
@@ -1004,6 +1116,309 @@
             // Domyślnie pokaż zakładkę klienta
             showTab('client');
         };
+
+        // Inicjalizacja EmailJS
+        function initializeEmailJS() {
+            if (emailJSConfig.publicKey !== "TWÓJ_PUBLIC_KEY") {
+                emailjs.init(emailJSConfig.publicKey);
+            }
+        }
+
+        // Funkcja wysyłania emaila z potwierdzeniem
+        async function sendConfirmationEmail(booking, service) {
+    console.log('🔄 Rozpoczynam wysyłanie emaila...');
+    
+    if (emailJSConfig.publicKey === "TWÓJ_PUBLIC_KEY") {
+        console.log('❌ EmailJS nie skonfigurowane');
+        return;
+    }
+
+    let carInfo = '';
+    if (booking.carBrand || booking.carModel || booking.carYear) {
+        carInfo = `Pojazd: ${booking.carBrand || ''} ${booking.carModel || ''} ${booking.carYear || ''}`;
+    }
+
+    const templateParams = {
+        to_email: booking.email,
+        to_name: `${booking.firstName} ${booking.lastName}`,
+        order_number: booking.orderNumber,
+        service_name: service.name,
+        service_description: service.description || 'Brak opisu',
+        service_price: service.price,
+        service_duration: service.duration,
+        date: booking.date,
+        time: booking.time,
+        phone: booking.phone,
+        notes: booking.notes || 'Brak uwag',
+        car_info: carInfo || 'Nie dotyczy',
+        company_name: 'CarTax'
+    };
+
+    // DODAJ TO DEBUGGING:
+    console.log('📧 Dane booking:', booking);
+    console.log('🔧 Dane service:', service);
+    console.log('📨 Parametry template:', templateParams);
+    console.log('🔑 EmailJS config:', emailJSConfig);
+
+    try {
+        const result = await emailjs.send(
+            emailJSConfig.serviceId,
+            emailJSConfig.templateId,
+            templateParams
+        );
+        console.log('✅ Email wysłany pomyślnie!', result);
+    } catch (error) {
+        console.error('❌ Błąd wysyłania emaila:', error);
+    }
+}
+
+
+        // Sprawdzenie limitu rezerwacji na email
+        async function checkEmailLimit(email, selectedDate) {
+            const selectedDateTime = new Date(selectedDate);
+            const weekStart = new Date(selectedDateTime);
+            weekStart.setDate(selectedDateTime.getDate() - selectedDateTime.getDay());
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekStart.getDate() + 6);
+
+            const startDateStr = formatDate(weekStart);
+            const endDateStr = formatDate(weekEnd);
+
+            try {
+                const snapshot = await db.collection('bookings')
+                    .where('email', '==', email)
+                    .where('date', '>=', startDateStr)
+                    .where('date', '<=', endDateStr)
+                    .where('archived', '==', false)
+                    .get();
+
+                return snapshot.size >= 30;
+            } catch (error) {
+                console.error('Błąd sprawdzania limitu:', error);
+                return false;
+            }
+        }
+
+        // Archiwizacja starych rezerwacji
+        async function archiveOldBookings() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            try {
+                const snapshot = await db.collection('bookings')
+                    .where('archived', '==', false)
+                    .get();
+
+                let archivedCount = 0;
+                const batch = db.batch();
+
+                snapshot.forEach(doc => {
+                    const booking = doc.data();
+                    const bookingDate = new Date(booking.date);
+                    bookingDate.setHours(23, 59, 59, 999);
+
+                    if (bookingDate < today) {
+                        batch.update(doc.ref, { archived: true, archivedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                        archivedCount++;
+                    }
+                });
+
+                if (archivedCount > 0) {
+                    await batch.commit();
+                    alert(`Zarchiwizowano ${archivedCount} starych rezerwacji`);
+                    updateBookingList();
+                    updateCalendar();
+                } else {
+                    alert('Brak starych rezerwacji do archiwizacji');
+                }
+            } catch (error) {
+                alert('Błąd archiwizacji: ' + error.message);
+            }
+        }
+
+        // Pokaż archiwalne rezerwacje
+        async function showArchivedBookings() {
+            document.getElementById('archiveModal').style.display = 'block';
+            await loadArchivedBookings();
+            updateArchiveCalendar();
+        }
+
+        function closeArchiveModal() {
+            document.getElementById('archiveModal').style.display = 'none';
+        }
+
+        async function loadArchivedBookings() {
+            try {
+                const snapshot = await db.collection('bookings')
+                    .where('archived', '==', true)
+                    .orderBy('date', 'desc')
+                    .get();
+
+                archivedBookings = [];
+                snapshot.forEach(doc => {
+                    archivedBookings.push({ ...doc.data(), id: doc.id });
+                });
+
+                displayArchivedBookings(archivedBookings);
+            } catch (error) {
+                console.error('Błąd ładowania archiwum:', error);
+            }
+        }
+
+        function displayArchivedBookings(bookings) {
+            const container = document.getElementById('archiveBookingList');
+            container.innerHTML = '';
+
+            if (bookings.length === 0) {
+                container.innerHTML = '<p style="color: #999;">Brak archiwalnych rezerwacji</p>';
+                return;
+            }
+
+            bookings.forEach((booking) => {
+                const service = allServices.find(s => s.id === booking.serviceId);
+                let carInfo = '';
+                if (booking.carBrand || booking.carModel || booking.carYear) {
+                    carInfo = `<br><small>Pojazd: ${booking.carBrand || ''} ${booking.carModel || ''} ${booking.carYear || ''}</small>`;
+                }
+
+                const item = document.createElement('div');
+                item.className = 'booking-item';
+                item.style.background = '#f5f5f5';
+                item.innerHTML = `
+                    <span style="color: #666;">
+                        <strong>${booking.date} ${booking.time}</strong> - 
+                        ${booking.firstName} ${booking.lastName} - 
+                        ${service ? service.name : 'Usługa usunięta'} - 
+                        Email: ${booking.email} - Tel: ${booking.phone}
+                        ${carInfo}
+                        ${booking.orderNumber ? '<br><small>Nr zamówienia: ' + booking.orderNumber + '</small>' : ''}
+                        ${booking.notes ? '<br><small>Uwagi: ' + booking.notes + '</small>' : ''}
+                        <br><small style="color: #999;">📁 Zarchiwizowano</small>
+                    </span>
+                    <div class="button-group">
+                        <button class="delete-btn" onclick="deleteArchivedBooking('${booking.id}')">Usuń na stałe</button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function searchArchivedBookings() {
+            const searchTerm = document.getElementById('archiveSearchInput').value.toLowerCase();
+            const filteredBookings = archivedBookings.filter(booking => {
+                return booking.firstName.toLowerCase().includes(searchTerm) ||
+                       booking.lastName.toLowerCase().includes(searchTerm) ||
+                       booking.phone.includes(searchTerm) ||
+                       booking.email.toLowerCase().includes(searchTerm) ||
+                       (booking.orderNumber && booking.orderNumber.toLowerCase().includes(searchTerm)) ||
+                       (booking.carBrand && booking.carBrand.toLowerCase().includes(searchTerm)) ||
+                       (booking.carModel && booking.carModel.toLowerCase().includes(searchTerm));
+            });
+            displayArchivedBookings(filteredBookings);
+        }
+
+        function changeArchiveCalendarWeek(direction) {
+            archiveWeekOffset += direction;
+            updateArchiveCalendar();
+        }
+
+        async function updateArchiveCalendar() {
+            const container = document.getElementById('archiveCalendarView');
+            const today = new Date();
+            today.setDate(today.getDate() + (archiveWeekOffset * 7));
+            const currentWeek = getWeekDates(today);
+
+            // Aktualizuj wyświetlanie aktualnego tygodnia
+            const weekDisplay = document.getElementById('archiveCurrentWeekDisplay');
+            const startDate = currentWeek[0];
+            const endDate = currentWeek[6];
+            weekDisplay.textContent = `${startDate.getDate()}.${startDate.getMonth() + 1}.${startDate.getFullYear()} - ${endDate.getDate()}.${endDate.getMonth() + 1}.${endDate.getFullYear()}`;
+
+            let html = '<table class="calendar-table"><tr><th>Godzina</th>';
+
+            const dayNames = ['Ndz', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob'];
+            currentWeek.forEach((date) => {
+                const dayIndex = date.getDay();
+                const isWorkingDay = settings.workingDays.includes(dayIndex);
+                html += `<th style="${!isWorkingDay ? 'background: #95a5a6;' : ''}">
+                    ${dayNames[dayIndex]}<br>${date.getDate()}.${date.getMonth() + 1}
+                </th>`;
+            });
+            html += '</tr>';
+
+            try {
+                // Pobierz archiwalne rezerwacje na ten tydzień
+                const startDateStr = formatDate(currentWeek[0]);
+                const endDateStr = formatDate(currentWeek[6]);
+
+                const snapshot = await db.collection('bookings')
+                    .where('archived', '==', true)
+                    .where('date', '>=', startDateStr)
+                    .where('date', '<=', endDateStr)
+                    .get();
+
+                const bookings = {};
+
+                // Organizuj rezerwacje
+                snapshot.forEach(doc => {
+                    const booking = { ...doc.data(), id: doc.id };
+                    const key = `${booking.date}_${booking.time}`;
+                    bookings[key] = booking;
+                });
+
+                const timeSlots = generateTimeSlots(settings.openTime, settings.closeTime);
+
+                timeSlots.forEach(time => {
+                    html += `<tr><td style="font-weight: bold;">${time}</td>`;
+                    currentWeek.forEach(date => {
+                        const dateStr = formatDate(date);
+                        const dayIndex = date.getDay();
+                        const isWorkingDay = settings.workingDays.includes(dayIndex);
+
+                        if (!isWorkingDay) {
+                            html += '<td style="background: #ecf0f1;"></td>';
+                        } else {
+                            const key = `${dateStr}_${time}`;
+                            const booking = bookings[key];
+
+                            if (booking) {
+                                const service = allServices.find(s => s.id === booking.serviceId);
+                                html += `<td>
+                                    <div class="booking-slot archived">
+                                        ${booking.firstName} ${booking.lastName.charAt(0)}.<br>
+                                        ${service ? service.name : ''}
+                                        ${booking.orderNumber ? '<br><small>' + booking.orderNumber + '</small>' : ''}
+                                    </div>
+                                </td>`;
+                            } else {
+                                html += '<td></td>';
+                            }
+                        }
+                    });
+                    html += '</tr>';
+                });
+
+                html += '</table>';
+                container.innerHTML = html;
+
+            } catch (error) {
+                container.innerHTML = '<p style="color: #e74c3c;">Błąd ładowania archiwum kalendarza</p>';
+                console.error(error);
+            }
+        }
+
+        async function deleteArchivedBooking(id) {
+            if (confirm('Czy na pewno chcesz usunąć tę rezerwację na stałe? Tej operacji nie można cofnąć.')) {
+                try {
+                    await db.collection('bookings').doc(id).delete();
+                    await loadArchivedBookings();
+                    updateArchiveCalendar();
+                    alert('Rezerwacja została usunięta na stałe');
+                } catch (error) {
+                    alert('Błąd usuwania rezerwacji: ' + error.message);
+                }
+            }
+        }
 
         // Funkcje do obsługi pól danych auta
         function toggleCarFields() {
@@ -1097,10 +1512,11 @@
             try {
                 const snapshot = await db.collection('bookings')
                     .where('orderNumber', '==', orderNumber)
+                    .where('archived', '==', false)
                     .get();
                 
                 if (snapshot.empty) {
-                    resultDiv.innerHTML = '<div class="error-message">Nie znaleziono rezerwacji o podanym numerze</div>';
+                    resultDiv.innerHTML = '<div class="error-message">Nie znaleziono aktywnej rezerwacji o podanym numerze</div>';
                     return;
                 }
                 
@@ -1122,6 +1538,7 @@
                         <h3>Twoja rezerwacja</h3>
                         <p><strong>Numer:</strong> ${booking.orderNumber}</p>
                         <p><strong>Imię i nazwisko:</strong> ${booking.firstName} ${booking.lastName}</p>
+                        <p><strong>Email:</strong> ${booking.email}</p>
                         <p><strong>Telefon:</strong> ${booking.phone}</p>
                         <p><strong>Usługa:</strong> ${service ? service.name : 'Usługa usunięta'}</p>
                         ${carInfo}
@@ -1180,6 +1597,7 @@
                     <h3>Aktualna rezerwacja</h3>
                     <p><strong>Numer:</strong> ${booking.orderNumber}</p>
                     <p><strong>Klient:</strong> ${booking.firstName} ${booking.lastName}</p>
+                    <p><strong>Email:</strong> ${booking.email}</p>
                     <p><strong>Telefon:</strong> ${booking.phone}</p>
                     <p><strong>Usługa:</strong> ${service ? service.name : 'Usługa usunięta'}</p>
                     ${carInfo}
@@ -1191,6 +1609,7 @@
                 // Wypełnij formularz edycji
                 document.getElementById('editFirstName').value = booking.firstName;
                 document.getElementById('editLastName').value = booking.lastName;
+                document.getElementById('editEmail').value = booking.email;
                 document.getElementById('editPhone').value = booking.phone;
                 document.getElementById('editServiceSelect').value = booking.serviceId;
                 document.getElementById('editBookingDate').value = booking.date;
@@ -1280,6 +1699,7 @@
             try {
                 const snapshot = await db.collection('bookings')
                     .where('date', '==', selectedDate)
+                    .where('archived', '==', false)
                     .get();
                 
                 const bookings = [];
@@ -1403,6 +1823,7 @@
             const updatedBooking = {
                 firstName: document.getElementById('editFirstName').value,
                 lastName: document.getElementById('editLastName').value,
+                email: document.getElementById('editEmail').value,
                 phone: document.getElementById('editPhone').value,
                 serviceId: serviceId,
                 date: document.getElementById('editBookingDate').value,
@@ -1632,12 +2053,15 @@
         function searchBookings() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const filteredBookings = allBookings.filter(booking => {
-                return booking.firstName.toLowerCase().includes(searchTerm) ||
-                       booking.lastName.toLowerCase().includes(searchTerm) ||
-                       booking.phone.includes(searchTerm) ||
-                       (booking.orderNumber && booking.orderNumber.toLowerCase().includes(searchTerm)) ||
-                       (booking.carBrand && booking.carBrand.toLowerCase().includes(searchTerm)) ||
-                       (booking.carModel && booking.carModel.toLowerCase().includes(searchTerm));
+                return !booking.archived && (
+                    booking.firstName.toLowerCase().includes(searchTerm) ||
+                    booking.lastName.toLowerCase().includes(searchTerm) ||
+                    booking.phone.includes(searchTerm) ||
+                    booking.email.toLowerCase().includes(searchTerm) ||
+                    (booking.orderNumber && booking.orderNumber.toLowerCase().includes(searchTerm)) ||
+                    (booking.carBrand && booking.carBrand.toLowerCase().includes(searchTerm)) ||
+                    (booking.carModel && booking.carModel.toLowerCase().includes(searchTerm))
+                );
             });
             displayFilteredBookings(filteredBookings);
         }
@@ -1672,7 +2096,7 @@
                             <strong>${booking.date} ${booking.time}</strong> - 
                             ${booking.firstName} ${booking.lastName} - 
                             ${service ? service.name : 'Usługa usunięta'} - 
-                            Tel: ${booking.phone}
+                            Email: ${booking.email} - Tel: ${booking.phone}
                             ${carInfo}
                             ${booking.orderNumber ? '<br><small>Nr zamówienia: ' + booking.orderNumber + '</small>' : ''}
                             ${booking.notes ? '<br><small>Uwagi: ' + booking.notes + '</small>' : ''}
@@ -1866,6 +2290,7 @@
             try {
                 const snapshot = await db.collection('bookings')
                     .where('date', '==', selectedDate)
+                    .where('archived', '==', false)
                     .get();
                 
                 const bookings = [];
@@ -1981,6 +2406,16 @@
                 return;
             }
             
+            const email = document.getElementById('clientEmail').value;
+            const selectedDate = document.getElementById('bookingDate').value;
+            
+            // Sprawdź limit rezerwacji na email
+            const limitExceeded = await checkEmailLimit(email, selectedDate);
+            if (limitExceeded) {
+                alert('Przekroczono limit 3 rezerwacji na jeden email w tygodniu. Skontaktuj się z nami telefonicznie.');
+                return;
+            }
+            
             // Sprawdź czy dane auta są wymagane
             const serviceId = document.getElementById('serviceSelect').value;
             const service = allServices.find(s => s.id === serviceId);
@@ -2005,12 +2440,14 @@
             const booking = {
                 firstName: document.getElementById('firstName').value,
                 lastName: document.getElementById('lastName').value,
+                email: email,
                 phone: document.getElementById('phone').value,
                 serviceId: serviceId,
-                date: document.getElementById('bookingDate').value,
+                date: selectedDate,
                 time: selectedTime,
                 notes: document.getElementById('clientNotes').value || '',
                 orderNumber: orderNumber,
+                archived: false,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
             
@@ -2024,10 +2461,13 @@
             try {
                 await db.collection('bookings').add(booking);
                 
+                // Wyślij email z potwierdzeniem
+                await sendConfirmationEmail(booking, service);
+                
                 // Pokaż komunikat sukcesu
                 document.getElementById('successMessage').style.display = 'block';
                 
-                // Pokaż numer zamówienia - USUNIĘTO setTimeout aby nie znikał
+                // Pokaż numer zamówienia
                 const orderDiv = document.getElementById('orderNumber');
                 orderDiv.innerHTML = `
                     <strong>Twój numer zamówienia: ${orderNumber}</strong><br>
@@ -2038,7 +2478,7 @@
                 // Ukryj tylko komunikat sukcesu po 3 sekundach
                 setTimeout(() => {
                     document.getElementById('successMessage').style.display = 'none';
-                }, 3000);
+                }, 5000);
                 
                 // Wyczyść formularz
                 this.reset();
@@ -2094,12 +2534,14 @@
                 description: document.getElementById('serviceDescription').value || '',
                 price: parseInt(document.getElementById('servicePrice').value),
                 duration: parseInt(document.getElementById('serviceDuration').value),
-                requireCarData: document.getElementById('requireCarData').checked
+                requireCarData: document.getElementById('requireCarData').checked,
+                color: document.getElementById('serviceColor').value
             };
             
             try {
                 await db.collection('services').add(service);
                 document.getElementById('serviceForm').reset();
+                document.getElementById('serviceColor').value = '#3498db'; // Reset color picker
                 alert('Usługa została dodana!');
             } catch (error) {
                 alert('Błąd dodawania usługi: ' + error.message);
@@ -2126,11 +2568,13 @@
                 
                 snapshot.forEach((doc) => {
                     const service = doc.data();
+                    const colorIndicator = service.color ? `<span style="display: inline-block; width: 15px; height: 15px; background: ${service.color}; border-radius: 50%; margin-right: 10px;"></span>` : '';
+                    
                     const item = document.createElement('div');
                     item.className = 'service-item';
                     item.innerHTML = `
                         <span>
-                            <strong>${service.name}</strong> - ${service.price} zł (${service.duration} min)
+                            ${colorIndicator}<strong>${service.name}</strong> - ${service.price} zł (${service.duration} min)
                             ${service.requireCarData ? '<br><small style="color: #e67e22;">⚠️ Wymaga danych pojazdu</small>' : ''}
                             ${service.description ? '<div class="service-description">' + service.description + '</div>' : ''}
                         </span>
@@ -2145,7 +2589,8 @@
         }
 
         async function updateBookingList() {
-            displayFilteredBookings(allBookings);
+            const activeBookings = allBookings.filter(booking => !booking.archived);
+            displayFilteredBookings(activeBookings);
         }
 
         async function updateCalendar() {
@@ -2174,12 +2619,12 @@
             
             try {
                 // Pobierz wszystkie rezerwacje na ten tydzień
-                const startDate = formatDate(currentWeek[0]);
-                const endDate = formatDate(currentWeek[6]);
+                const startDateStr = formatDate(currentWeek[0]);
+                const endDateStr = formatDate(currentWeek[6]);
                 
                 const snapshot = await db.collection('bookings')
-                    .where('date', '>=', startDate)
-                    .where('date', '<=', endDate)
+                    .where('date', '>=', startDateStr)
+                    .where('date', '<=', endDateStr)
                     .get();
                 
                 const bookings = {};
@@ -2215,11 +2660,17 @@
                             
                             if (booking) {
                                 const service = services[booking.serviceId];
+                                const serviceColor = service && service.color ? service.color : '#3498db';
+                                const isArchived = booking.archived;
+                                const slotClass = isArchived ? 'booking-slot archived' : 'booking-slot';
+                                const slotStyle = isArchived ? '' : `background: ${serviceColor};`;
+                                
                                 html += `<td>
-                                    <div class="booking-slot" onclick="openEditModal('${booking.id}', true)">
+                                    <div class="${slotClass}" style="${slotStyle}" onclick="openEditModal('${booking.id}', true)">
                                         ${booking.firstName} ${booking.lastName.charAt(0)}.<br>
                                         ${service ? service.name : ''}
                                         ${booking.orderNumber ? '<br><small>' + booking.orderNumber + '</small>' : ''}
+                                        ${isArchived ? '<br><small>📁</small>' : ''}
                                     </div>
                                 </td>`;
                             } else {
@@ -2293,6 +2744,7 @@
                     
                     let details = `Rezerwacja:
 Klient: ${booking.firstName} ${booking.lastName}
+Email: ${booking.email}
 Telefon: ${booking.phone}
 Usługa: ${service ? service.name : 'Usługa usunięta'}
 Data: ${booking.date}
