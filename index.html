@@ -1,2773 +1,5501 @@
 <!DOCTYPE html>
+
 <html lang="pl">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Zarezerwuj termin w CarTax</title>
+
     <!-- EmailJS SDK -->
+
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
     <style>
+
         * {
+
             margin: 0;
+
             padding: 0;
+
             box-sizing: border-box;
+
         }
 
         body {
+
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
             background: linear-gradient(135deg, #b8860b 0%, #2c2c2c 100%);
+
             min-height: 100vh;
+
             display: flex;
+
             align-items: center;
+
             justify-content: center;
+
             padding: 20px;
+
         }
 
         .container {
+
             background: rgba(255, 255, 255, 0.95);
+
             border-radius: 20px;
+
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+
             padding: 40px;
+
             max-width: 1200px;
+
             width: 100%;
+
             position: relative;
+
         }
 
         h1 {
+
             text-align: center;
+
             color: #333;
+
             margin-bottom: 30px;
+
             font-size: 2.5em;
+
         }
 
         h2 {
+
             color: #444;
+
             margin-bottom: 20px;
+
         }
 
         h3 {
+
             color: #555;
+
             margin: 20px 0 15px 0;
+
         }
 
         .loading {
+
             text-align: center;
+
             padding: 40px;
+
             font-size: 1.2em;
+
             color: #666;
+
         }
 
         .error-message {
+
             background: #e74c3c;
+
             color: white;
+
             padding: 15px;
+
             border-radius: 8px;
+
             margin-bottom: 20px;
+
             text-align: center;
+
         }
 
         .tab-buttons {
+
             position: absolute;
+
             top: 20px;
+
             left: 20px;
+
         }
 
         .tab-button {
+
             padding: 8px 20px;
+
             border: none;
+
             background: #b8860b;
+
             color: white;
+
             border-radius: 8px;
+
             cursor: pointer;
+
             font-size: 14px;
+
             transition: all 0.3s ease;
+
             margin-right: 5px;
+
         }
 
         .tab-button:hover {
+
             background: #996f0a;
+
             transform: translateY(-2px);
+
         }
 
         .tab-button.active {
+
             background: #996f0a;
+
         }
 
         .tab-content {
+
             display: none;
+
         }
 
         .tab-content.active {
+
             display: block;
+
             animation: fadeIn 0.5s ease;
+
         }
 
         @keyframes fadeIn {
+
             from { opacity: 0; transform: translateY(10px); }
+
             to { opacity: 1; transform: translateY(0); }
+
         }
 
         .form-group {
+
             margin-bottom: 20px;
+
         }
 
         label {
+
             display: block;
+
             margin-bottom: 5px;
+
             color: #555;
+
             font-weight: 500;
+
         }
 
         input, select, textarea {
+
             width: 100%;
+
             padding: 10px;
+
             border: 2px solid #ddd;
+
             border-radius: 8px;
+
             font-size: 16px;
+
             transition: border-color 0.3s ease;
+
         }
 
         input:focus, select:focus, textarea:focus {
+
             outline: none;
+
             border-color: #b8860b;
+
         }
 
         button {
+
             background: #b8860b;
+
             color: white;
+
             border: none;
+
             padding: 12px 30px;
+
             border-radius: 8px;
+
             font-size: 16px;
+
             cursor: pointer;
+
             transition: all 0.3s ease;
+
         }
 
         button:hover {
+
             background: #996f0a;
+
             transform: translateY(-2px);
+
         }
 
         button:disabled {
+
             background: #95a5a6;
+
             cursor: not-allowed;
+
             transform: none;
+
         }
 
         .service-list, .booking-list {
+
             margin-top: 20px;
+
         }
 
         .service-item, .booking-item {
+
             background: #f8f9fa;
+
             padding: 15px;
+
             margin-bottom: 10px;
+
             border-radius: 8px;
+
             display: flex;
+
             justify-content: space-between;
+
             align-items: center;
+
         }
 
         .service-item span {
+
             flex: 1;
+
         }
 
         .service-description {
+
             color: #666;
+
             font-size: 0.9em;
+
             font-style: italic;
+
             margin-top: 5px;
+
         }
 
         .delete-btn {
+
             background: #e74c3c;
+
             padding: 5px 15px;
+
             font-size: 14px;
+
             margin-left: 10px;
+
         }
 
         .delete-btn:hover {
+
             background: #c0392b;
+
         }
 
         .edit-btn {
+
             background: #3498db;
+
             padding: 5px 15px;
+
             font-size: 14px;
+
         }
 
         .edit-btn:hover {
+
             background: #2980b9;
+
         }
 
         .archive-btn {
+
             background: #95a5a6;
+
             padding: 5px 15px;
+
             font-size: 14px;
+
         }
 
         .archive-btn:hover {
+
             background: #7f8c8d;
+
         }
 
         .calendar-table {
+
             width: 100%;
+
             margin-top: 20px;
+
             border-collapse: collapse;
+
             overflow-x: auto;
+
             display: block;
+
             white-space: nowrap;
+
         }
 
         .calendar-table th, .calendar-table td {
+
             border: 1px solid #ddd;
+
             padding: 10px;
+
             text-align: center;
+
             min-width: 80px;
+
         }
 
         .calendar-table th {
+
             background: #b8860b;
+
             color: white;
+
         }
 
         .calendar-table td {
+
             height: 80px;
+
             vertical-align: top;
+
             position: relative;
+
         }
 
         .booking-slot {
+
             color: white;
+
             padding: 2px 5px;
+
             margin: 2px;
+
             border-radius: 3px;
+
             font-size: 11px;
+
             cursor: pointer;
+
         }
 
         .booking-slot.archived {
+
             background: #95a5a6 !important;
+
         }
 
         .success-message {
+
             background: #2ecc71;
+
             color: white;
+
             padding: 15px;
+
             border-radius: 8px;
+
             margin-bottom: 20px;
+
             text-align: center;
+
         }
 
         .time-slots {
+
             display: grid;
+
             grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+
             gap: 10px;
+
             margin-top: 10px;
+
         }
 
         .time-slot {
+
             background: #ecf0f1;
+
             padding: 10px;
+
             border-radius: 5px;
+
             text-align: center;
+
             cursor: pointer;
+
             transition: all 0.3s ease;
+
         }
 
         .time-slot:hover {
+
             background: #3498db;
+
             color: white;
+
         }
 
         .time-slot.selected {
+
             background: #2ecc71;
+
             color: white;
+
         }
 
         .time-slot.booked {
+
             background: #e74c3c;
+
             color: white;
+
             cursor: not-allowed;
+
         }
 
         .working-hours {
+
             display: grid;
+
             grid-template-columns: repeat(2, 1fr);
+
             gap: 10px;
+
         }
 
         .day-checkbox {
+
             display: flex;
+
             align-items: center;
+
             gap: 10px;
+
             margin-bottom: 10px;
+
         }
 
         .setup-box {
+
             background: #3498db;
+
             color: white;
+
             padding: 20px;
+
             border-radius: 8px;
+
             margin-bottom: 20px;
+
         }
 
         .setup-box h3 {
+
             color: white;
+
             margin-top: 0;
+
         }
 
         .setup-box code {
+
             background: rgba(255,255,255,0.2);
+
             padding: 2px 5px;
+
             border-radius: 3px;
+
         }
 
         .firebase-config {
+
             background: #f8f9fa;
+
             padding: 15px;
+
             border-radius: 8px;
+
             margin: 10px 0;
+
         }
 
         .firebase-config input {
+
             margin-bottom: 10px;
+
         }
 
         .collapsible-section {
+
             margin-bottom: 20px;
+
         }
 
         .collapsible-header {
+
             background: #f8f9fa;
+
             padding: 15px;
+
             border-radius: 8px;
+
             cursor: pointer;
+
             display: flex;
+
             justify-content: space-between;
+
             align-items: center;
+
             margin-bottom: 10px;
+
             transition: background 0.3s ease;
+
         }
 
         .collapsible-header:hover {
+
             background: #e9ecef;
+
         }
 
         .collapsible-content {
+
             display: none;
+
             padding: 20px;
+
             background: #f8f9fa;
+
             border-radius: 8px;
+
         }
 
         .collapsible-content.active {
+
             display: block;
+
         }
 
         .search-box {
+
             margin-bottom: 20px;
+
         }
 
         .search-box input {
+
             padding: 10px;
+
             border: 2px solid #ddd;
+
             border-radius: 8px;
+
             width: 100%;
+
         }
 
         .calendar-navigation {
+
             display: flex;
+
             justify-content: space-between;
+
             align-items: center;
+
             margin-bottom: 20px;
+
         }
 
         .calendar-navigation button {
+
             padding: 8px 16px;
+
             background: #b8860b;
+
             color: white;
+
             border: none;
+
             border-radius: 5px;
+
             cursor: pointer;
+
         }
 
         .order-number {
+
             background: #f39c12;
+
             color: white;
+
             padding: 15px;
+
             border-radius: 8px;
+
             margin-bottom: 20px;
+
             text-align: center;
+
             font-size: 1.2em;
+
             font-weight: bold;
+
         }
 
         .password-form {
+
             display: grid;
+
             gap: 15px;
+
         }
 
         .password-form .form-group {
+
             margin-bottom: 0;
+
         }
 
         .modal {
+
             display: none;
+
             position: fixed;
+
             z-index: 1000;
+
             left: 0;
+
             top: 0;
+
             width: 100%;
+
             height: 100%;
+
             background-color: rgba(0,0,0,0.5);
+
         }
 
         .modal-content {
+
             background-color: white;
+
             margin: 5% auto;
+
             padding: 30px;
+
             border-radius: 10px;
+
             width: 90%;
+
             max-width: 600px;
+
             max-height: 80vh;
+
             overflow-y: auto;
+
         }
 
         .close {
+
             color: #aaa;
+
             float: right;
+
             font-size: 28px;
+
             font-weight: bold;
+
             cursor: pointer;
+
             margin-top: -20px;
+
         }
 
         .close:hover {
+
             color: black;
+
         }
 
         .booking-details {
+
             background: #f8f9fa;
+
             padding: 15px;
+
             border-radius: 8px;
+
             margin-bottom: 20px;
+
         }
 
         .edit-form {
+
             display: none;
+
         }
 
         .edit-form.active {
+
             display: block;
+
         }
 
         .button-group {
+
             display: flex;
+
             gap: 10px;
+
             flex-wrap: wrap;
+
         }
 
         .cancel-btn {
+
             background: #95a5a6;
+
         }
 
         .cancel-btn:hover {
+
             background: #7f8c8d;
+
         }
 
         .client-edit-section {
+
             background: #e8f4f8;
+
             padding: 20px;
+
             border-radius: 8px;
+
             margin-bottom: 30px;
+
         }
 
         .car-fields {
+
             display: none;
+
             background: #fff3cd;
+
             padding: 15px;
+
             border-radius: 8px;
+
             margin-bottom: 20px;
+
         }
 
         .car-fields.active {
+
             display: block;
+
         }
 
         .car-fields h4 {
+
             color: #856404;
+
             margin-bottom: 15px;
+
         }
 
         .checkbox-group {
+
             display: flex;
+
             align-items: center;
+
             gap: 10px;
+
             margin-bottom: 15px;
+
         }
 
         .checkbox-group input[type="checkbox"] {
+
             width: auto;
+
         }
 
         .color-picker-group {
+
             display: flex;
+
             align-items: center;
+
             gap: 10px;
+
             margin-bottom: 15px;
+
         }
 
         .color-picker-group input[type="color"] {
+
             width: 50px;
+
             height: 40px;
+
             border: none;
+
             border-radius: 5px;
+
             cursor: pointer;
+
         }
 
         .archive-section {
+
             background: #f8f9fa;
+
             padding: 20px;
+
             border-radius: 8px;
+
             margin-bottom: 20px;
+
         }
 
         .archive-controls {
+
             display: flex;
+
             gap: 10px;
+
             margin-bottom: 20px;
+
             flex-wrap: wrap;
+
         }
 
         /* Responsywność dla telefonów */
+
         @media (max-width: 768px) {
+
             .container {
+
                 padding: 20px;
+
                 margin: 10px;
+
             }
 
             h1 {
+
                 font-size: 1.8em;
+
                 margin-bottom: 20px;
+
             }
 
             .tab-buttons {
+
                 position: static;
+
                 display: flex;
+
                 flex-wrap: wrap;
+
                 justify-content: center;
+
                 margin-bottom: 20px;
+
                 gap: 5px;
+
             }
 
             .tab-button {
+
                 padding: 6px 12px;
+
                 font-size: 12px;
+
                 margin-right: 0;
+
             }
 
             .time-slots {
+
                 grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+
                 gap: 5px;
+
             }
 
             .time-slot {
+
                 padding: 8px;
+
                 font-size: 14px;
+
             }
 
             .working-hours {
+
                 grid-template-columns: 1fr;
+
             }
 
             .button-group {
+
                 flex-direction: column;
+
             }
 
             .button-group button {
+
                 width: 100%;
+
                 margin-bottom: 10px;
+
             }
 
             .service-item, .booking-item {
+
                 flex-direction: column;
+
                 align-items: flex-start;
+
                 gap: 10px;
+
             }
 
             .calendar-table {
+
                 font-size: 12px;
+
             }
 
             .calendar-table th, .calendar-table td {
+
                 padding: 5px;
+
                 min-width: 60px;
+
             }
 
             .booking-slot {
+
                 font-size: 10px;
+
                 padding: 1px 3px;
+
             }
 
             .modal-content {
+
                 margin: 2% auto;
+
                 padding: 20px;
+
                 width: 95%;
+
                 max-height: 90vh;
+
             }
 
             .calendar-navigation {
+
                 flex-direction: column;
+
                 gap: 10px;
+
             }
 
             .calendar-navigation button {
+
                 width: 100%;
+
             }
 
             .archive-controls {
+
                 flex-direction: column;
+
             }
 
             .archive-controls button {
+
                 width: 100%;
+
             }
 
             input, select, textarea, button {
+
                 font-size: 16px; /* Zapobiega zoom na iOS */
+
             }
+
         }
 
         @media (max-width: 480px) {
+
             .container {
+
                 padding: 15px;
+
             }
 
             h1 {
+
                 font-size: 1.5em;
+
             }
 
             .tab-button {
+
                 padding: 5px 8px;
+
                 font-size: 11px;
+
             }
 
             .time-slots {
+
                 grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+
             }
 
             .collapsible-header {
+
                 padding: 10px;
+
                 font-size: 14px;
+
             }
 
             .collapsible-content {
+
                 padding: 15px;
+
             }
+
         }
+
+        .service-description {
+
+            color: #666;
+
+            font-size: 0.9em;
+
+            margin-top: 5px;
+
+            padding: 10px;
+
+            background: #f0f0f0;
+
+            border-radius: 5px;
+
+        }
+
+        .special-info {
+
+            color: #e67e22;
+
+            font-size: 0.9em;
+
+            margin-top: 5px;
+
+            padding: 10px;
+
+            background: #fff3cd;
+
+            border-radius: 5px;
+
+            font-weight: bold;
+
+        }
+
     </style>
+
 </head>
+
 <body>
+
     <div class="container">
+
         <div class="tab-buttons">
+
             <button class="tab-button" onclick="showTab('client')">Nowa rezerwacja</button>
+
             <button class="tab-button" onclick="showTab('edit')">Zmień rezerwację</button>
+
             <button class="tab-button" onclick="showTab('admin')">Administrator</button>
+
         </div>
 
         <h1>Zarezerwuj termin w CarTax</h1>
-        
+
+       
+
         <!-- Konfiguracja Firebase - tylko dla pierwszej instalacji -->
+
         <div id="firebaseSetup" class="setup-box" style="display: none;">
+
             <h3>⚠️ Konfiguracja Firebase - TYLKO DLA ADMINISTRATORA</h3>
+
             <p style="color: #fff3cd; background: #856404; padding: 10px; border-radius: 5px;">
+
                 <strong>UWAGA:</strong> Ten formularz jest widoczny tylko dlatego, że nie uzupełniłeś danych Firebase w kodzie.
+
                 Po uzupełnieniu danych w pliku HTML, ten formularz zniknie dla wszystkich użytkowników.
+
             </p>
+
             <p>Instrukcja:</p>
+
             <ol>
+
                 <li>Otwórz plik HTML w edytorze tekstu (np. Notepad++, VS Code)</li>
+
                 <li>Znajdź sekcję z kodem:<br>
+
                     <code>const firebaseConfig = {</code></li>
+
                 <li>Zastąp wszystkie wartości "TUTAJ-WKLEJ-..." swoimi danymi z Firebase</li>
+
                 <li>Zapisz plik i wgraj ponownie na GitHub</li>
+
             </ol>
-            
+
+           
+
             <p style="margin-top: 15px;"><strong>Twoje dane Firebase:</strong></p>
+
             <div class="firebase-config" style="background: white; color: black; padding: 15px; font-family: monospace; white-space: pre-wrap;">const firebaseConfig = {
+
     apiKey: "twój-api-key-tutaj",
+
     authDomain: "twój-auth-domain.firebaseapp.com",
+
     projectId: "twój-project-id",
+
     storageBucket: "twój-storage-bucket.appspot.com",
+
     messagingSenderId: "twój-sender-id",
+
     appId: "twój-app-id"
+
 };</div>
+
         </div>
 
         <div id="mainApp" style="display: none;">
+
             <!-- Zakładka Nowa rezerwacja -->
+
             <div id="client" class="tab-content active">
+
                 <h2>Nowa Rezerwacja</h2>
+
                 <form id="bookingForm">
+
                     <div class="form-group">
+
                         <label>Imię:</label>
+
                         <input type="text" id="firstName" required>
+
                     </div>
+
                     <div class="form-group">
+
                         <label>Nazwisko:</label>
+
                         <input type="text" id="lastName" required>
+
                     </div>
+
                     <div class="form-group">
+
                         <label>Adres email:</label>
+
                         <input type="email" id="clientEmail" required placeholder="twoj@email.com">
+
                         <small style="color: #666;">Na ten adres otrzymasz potwierdzenie rezerwacji</small>
+
                     </div>
+
                     <div class="form-group">
+
                         <label>Numer telefonu:</label>
+
                         <input type="tel" id="phone" required>
+
                     </div>
+
                     <div class="form-group">
+
                         <label>Wybierz usługę:</label>
-                        <select id="serviceSelect" required onchange="updateTimeSlots(); toggleCarFields();">
+
+                        <select id="serviceSelect" required onchange="updateTimeSlots(); toggleCarFields(); showServiceDetails();">
+
                             <option value="">-- Wybierz usługę --</option>
+
                         </select>
+
+                        <div id="serviceDetails" style="margin-top: 10px;"></div>
+
                     </div>
-                    
+
+                   
+
                     <!-- Pola danych auta -->
+
                     <div id="carFields" class="car-fields">
+
                         <h4>Dane pojazdu</h4>
+
                         <div class="form-group">
+
                             <label>Marka pojazdu:</label>
+
                             <input type="text" id="carBrand">
+
                         </div>
+
                         <div class="form-group">
+
                             <label>Model pojazdu:</label>
+
                             <input type="text" id="carModel">
+
                         </div>
+
                         <div class="form-group">
+
                             <label>Rok produkcji:</label>
+
                             <input type="number" id="carYear" min="1900" max="2030">
+
                         </div>
+
                     </div>
-                    
+
+                   
+
                     <div class="form-group">
+
                         <label>Data:</label>
+
                         <input type="date" id="bookingDate" required onchange="updateTimeSlots()">
+
                     </div>
+
                     <div class="form-group">
+
                         <label>Dostępne godziny:</label>
+
                         <div class="time-slots" id="timeSlots"></div>
+
                     </div>
+
                     <div class="form-group">
+
                         <label>Uwagi (opcjonalne):</label>
+
                         <textarea id="clientNotes" rows="3" placeholder="Dodatkowe informacje lub uwagi do rezerwacji"></textarea>
+
                     </div>
+
                     <button type="submit" id="submitBooking">Zarezerwuj termin</button>
+
                 </form>
+
                 <div id="successMessage" class="success-message" style="display: none;">
+
                     Termin został pomyślnie zarezerwowany! Potwierdzenie zostało wysłane na Twój email.
+
                 </div>
+
                 <div id="orderNumber" class="order-number" style="display: none;"></div>
+
             </div>
 
             <!-- Zakładka Zmień rezerwację -->
+
             <div id="edit" class="tab-content">
+
                 <div class="client-edit-section">
+
                     <h2>Zmień swoją rezerwację</h2>
+
                     <p style="margin-bottom: 20px;">Wpisz numer swojej rezerwacji, aby móc ją zmodyfikować lub anulować.</p>
-                    
+
+                   
+
                     <div class="form-group">
+
                         <label>Numer rezerwacji:</label>
+
                         <input type="text" id="clientOrderNumber" placeholder="np. CT12345678">
+
                     </div>
+
                     <button onclick="findClientBooking()">Znajdź rezerwację</button>
-                    
+
+                   
+
                     <div id="clientBookingResult" style="margin-top: 20px;"></div>
+
                 </div>
+
             </div>
 
             <!-- Zakładka Administrator -->
+
             <div id="admin" class="tab-content">
+
                 <div id="loginForm">
+
                     <h2>Logowanie administratora</h2>
+
                     <div class="form-group">
+
                         <label>Hasło:</label>
+
                         <input type="password" id="adminPassword" onkeypress="handleEnterKey(event)">
+
                     </div>
+
                     <button onclick="loginAdmin()">Zaloguj</button>
+
                 </div>
 
                 <div id="adminPanel" style="display: none;">
+
                     <h2>Panel Administratora</h2>
-                    
+
+                   
+
                     <!-- Zmiana hasła -->
+
                     <div class="collapsible-section">
+
                         <div class="collapsible-header" onclick="toggleSection('passwordSection')">
+
                             <h3>Zmiana hasła administratora</h3>
+
                             <span>▼</span>
+
                         </div>
+
                         <div class="collapsible-content" id="passwordSection">
+
                             <div class="password-form">
+
                                 <div class="form-group">
+
                                     <label>Aktualne hasło:</label>
+
                                     <input type="password" id="currentPassword">
+
                                 </div>
+
                                 <div class="form-group">
+
                                     <label>Nowe hasło:</label>
+
                                     <input type="password" id="newPassword">
+
                                 </div>
+
                                 <div class="form-group">
+
                                     <label>Potwierdź nowe hasło:</label>
+
                                     <input type="password" id="confirmPassword">
+
                                 </div>
+
                                 <button onclick="changePassword()">Zmień hasło</button>
+
                             </div>
+
                         </div>
+
                     </div>
-                    
+
+                   
+
                     <!-- Godziny pracy -->
+
                     <div class="collapsible-section">
+
                         <div class="collapsible-header" onclick="toggleSection('hoursSection')">
+
                             <h3>Godziny pracy</h3>
+
                             <span>▼</span>
+
                         </div>
+
                         <div class="collapsible-content" id="hoursSection">
+
                             <div class="working-hours">
+
                                 <div>
+
                                     <label>Godzina otwarcia:</label>
+
                                     <input type="time" id="openTime" value="09:00" onchange="updateWorkingHours()">
+
                                 </div>
+
                                 <div>
+
                                     <label>Godzina zamknięcia:</label>
+
                                     <input type="time" id="closeTime" value="18:00" onchange="updateWorkingHours()">
+
                                 </div>
+
                             </div>
-                            
+
+                           
+
                             <h4>Dni pracy:</h4>
+
                             <div id="workingDays">
+
                                 <div class="day-checkbox">
+
                                     <input type="checkbox" id="day-1" checked onchange="updateWorkingDays()">
+
                                     <label for="day-1">Poniedziałek</label>
+
                                 </div>
+
                                 <div class="day-checkbox">
+
                                     <input type="checkbox" id="day-2" checked onchange="updateWorkingDays()">
+
                                     <label for="day-2">Wtorek</label>
+
                                 </div>
+
                                 <div class="day-checkbox">
+
                                     <input type="checkbox" id="day-3" checked onchange="updateWorkingDays()">
+
                                     <label for="day-3">Środa</label>
+
                                 </div>
+
                                 <div class="day-checkbox">
+
                                     <input type="checkbox" id="day-4" checked onchange="updateWorkingDays()">
+
                                     <label for="day-4">Czwartek</label>
+
                                 </div>
+
                                 <div class="day-checkbox">
+
                                     <input type="checkbox" id="day-5" checked onchange="updateWorkingDays()">
+
                                     <label for="day-5">Piątek</label>
+
                                 </div>
+
                                 <div class="day-checkbox">
+
                                     <input type="checkbox" id="day-6" onchange="updateWorkingDays()">
+
                                     <label for="day-6">Sobota</label>
+
                                 </div>
+
                                 <div class="day-checkbox">
+
                                     <input type="checkbox" id="day-0" onchange="updateWorkingDays()">
+
                                     <label for="day-0">Niedziela</label>
+
                                 </div>
+
                             </div>
+
                         </div>
+
                     </div>
 
                     <!-- Zarządzanie usługami -->
+
                     <div class="collapsible-section">
+
                         <div class="collapsible-header" onclick="toggleSection('servicesSection')">
+
                             <h3>Zarządzanie usługami</h3>
+
                             <span>▼</span>
+
                         </div>
+
                         <div class="collapsible-content" id="servicesSection">
-                            <form id="serviceForm" onsubmit="addService(event)">
+
+                            <form id="serviceForm" onsubmit="addOrUpdateService(event)">
+
                                 <div class="form-group">
+
                                     <label>Nazwa usługi:</label>
+
                                     <input type="text" id="serviceName" required>
+
                                 </div>
+
                                 <div class="form-group">
+
                                     <label>Opis usługi:</label>
+
                                     <textarea id="serviceDescription" rows="3" placeholder="Krótki opis usługi dla klientów"></textarea>
+
                                 </div>
+
                                 <div class="form-group">
+
                                     <label>Cena (zł):</label>
+
                                     <input type="number" id="servicePrice" min="0" required>
+
                                 </div>
+
                                 <div class="form-group">
+
                                     <label>Czas trwania (min):</label>
+
                                     <input type="number" id="serviceDuration" min="15" step="15" required>
+
                                 </div>
+
                                 <div class="checkbox-group">
+
                                     <input type="checkbox" id="requireCarData">
+
                                     <label for="requireCarData">Wymagaj danych pojazdu (marka, model, rok)</label>
+
                                 </div>
+
                                 <div class="color-picker-group">
+
                                     <label for="serviceColor">Kolor w kalendarzu:</label>
+
                                     <input type="color" id="serviceColor" value="#3498db">
+
                                 </div>
-                                <button type="submit">Dodaj usługę</button>
+
+                                <div class="checkbox-group">
+
+                                    <input type="checkbox" id="isSpecial" onchange="toggleSpecialFields()">
+
+                                    <label for="isSpecial">Specjalna usługa (tylko o 8:00, auto do zostawienia, odbiór ok. 12:00-13:00)</label>
+
+                                </div>
+
+                                <div id="specialFields" style="display:none;">
+
+                                    <div class="form-group">
+
+                                        <label>Czas wykonania (minuty, widoczny tylko dla Ciebie):</label>
+
+                                        <input type="number" id="executionTime" min="30" step="15" value="60">
+
+                                    </div>
+
+                                </div>
+
+                                <h4>Dostępność usługi</h4>
+
+                                <div id="availableDays">
+
+                                    <div class="day-checkbox">
+
+                                        <input type="checkbox" id="availDay-1">
+
+                                        <label for="availDay-1">Poniedziałek</label>
+
+                                    </div>
+
+                                    <div class="day-checkbox">
+
+                                        <input type="checkbox" id="availDay-2">
+
+                                        <label for="availDay-2">Wtorek</label>
+
+                                    </div>
+
+                                    <div class="day-checkbox">
+
+                                        <input type="checkbox" id="availDay-3">
+
+                                        <label for="availDay-3">Środa</label>
+
+                                    </div>
+
+                                    <div class="day-checkbox">
+
+                                        <input type="checkbox" id="availDay-4">
+
+                                        <label for="availDay-4">Czwartek</label>
+
+                                    </div>
+
+                                    <div class="day-checkbox">
+
+                                        <input type="checkbox" id="availDay-5">
+
+                                        <label for="availDay-5">Piątek</label>
+
+                                    </div>
+
+                                    <div class="day-checkbox">
+
+                                        <input type="checkbox" id="availDay-6">
+
+                                        <label for="availDay-6">Sobota</label>
+
+                                    </div>
+
+                                    <div class="day-checkbox">
+
+                                        <input type="checkbox" id="availDay-0">
+
+                                        <label for="availDay-0">Niedziela</label>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="working-hours">
+
+                                    <div>
+
+                                        <label>Godzina od:</label>
+
+                                        <input type="time" id="availFrom" value="09:00">
+
+                                    </div>
+
+                                    <div>
+
+                                        <label>Godzina do:</label>
+
+                                        <input type="time" id="availTo" value="18:00">
+
+                                    </div>
+
+                                </div>
+
+                                <small>Jeśli nie zaznaczysz dni, usługa dostępna we wszystkie dni pracy. Godziny w ramach godzin pracy.</small>
+
+                                <button type="submit" id="serviceSubmitBtn">Dodaj usługę</button>
+
                             </form>
 
                             <div class="service-list" id="serviceList">
+
                                 <div class="loading">Ładowanie usług...</div>
+
                             </div>
+
                         </div>
+
                     </div>
 
                     <!-- Archiwizacja -->
+
                     <div class="archive-section">
+
                         <h3>Archiwizacja rezerwacji</h3>
+
                         <p>Automatycznie archiwizuj stare rezerwacje po upływie terminu:</p>
+
                         <div class="archive-controls">
+
                             <button onclick="archiveOldBookings()">Archiwizuj stare rezerwacje</button>
+
                             <button onclick="showArchivedBookings()" class="archive-btn">Pokaż archiwalne rezerwacje</button>
+
                         </div>
+
                     </div>
 
                     <!-- Wyszukiwarka rezerwacji -->
+
                     <h3>Wyszukiwarka aktywnych rezerwacji</h3>
+
                     <div class="search-box">
+
                         <input type="text" id="searchInput" placeholder="Szukaj po imieniu, nazwisku, telefonie, emailu lub numerze zamówienia..." onkeyup="searchBookings()">
+
                     </div>
 
                     <h3>Kalendarz rezerwacji</h3>
+
                     <div class="calendar-navigation">
+
                         <button onclick="changeCalendarWeek(-1)">← Poprzedni tydzień</button>
+
                         <span id="currentWeekDisplay"></span>
+
                         <button onclick="changeCalendarWeek(1)">Następny tydzień →</button>
+
                     </div>
+
                     <div id="calendarView">
+
                         <div class="loading">Ładowanie kalendarza...</div>
+
                     </div>
 
                     <h3>Lista aktywnych rezerwacji</h3>
+
                     <div class="booking-list" id="bookingList">
+
                         <div class="loading">Ładowanie rezerwacji...</div>
+
                     </div>
 
                     <button onclick="logout()" style="margin-top: 20px; background: #e74c3c;">
+
                         Wyloguj
+
                     </button>
+
                 </div>
+
             </div>
+
         </div>
+
     </div>
 
     <!-- Modal do edycji rezerwacji -->
+
     <div id="editModal" class="modal">
+
         <div class="modal-content">
+
             <span class="close" onclick="closeEditModal()">&times;</span>
+
             <h2>Edycja rezerwacji</h2>
-            
+
+           
+
             <div id="currentBookingDetails" class="booking-details"></div>
-            
+
+           
+
             <div id="editBookingForm" class="edit-form">
+
                 <div class="form-group">
+
                     <label>Imię:</label>
+
                     <input type="text" id="editFirstName" required>
+
                 </div>
+
                 <div class="form-group">
+
                     <label>Nazwisko:</label>
+
                     <input type="text" id="editLastName" required>
+
                 </div>
+
                 <div class="form-group">
+
                     <label>Email:</label>
+
                     <input type="email" id="editEmail" required>
+
                 </div>
+
                 <div class="form-group">
+
                     <label>Numer telefonu:</label>
+
                     <input type="tel" id="editPhone" required>
+
                 </div>
+
                 <div class="form-group">
+
                     <label>Usługa:</label>
+
                     <select id="editServiceSelect" required onchange="updateEditTimeSlots(); toggleEditCarFields();">
+
                         <option value="">-- Wybierz usługę --</option>
+
                     </select>
+
                 </div>
-                
+
+               
+
                 <!-- Pola danych auta w edycji -->
+
                 <div id="editCarFields" class="car-fields">
+
                     <h4>Dane pojazdu</h4>
+
                     <div class="form-group">
+
                         <label>Marka pojazdu:</label>
+
                         <input type="text" id="editCarBrand">
+
                     </div>
+
                     <div class="form-group">
+
                         <label>Model pojazdu:</label>
+
                         <input type="text" id="editCarModel">
+
                     </div>
+
                     <div class="form-group">
+
                         <label>Rok produkcji:</label>
+
                         <input type="number" id="editCarYear" min="1900" max="2030">
+
                     </div>
+
                 </div>
-                
+
+               
+
                 <div class="form-group">
+
                     <label>Data:</label>
+
                     <input type="date" id="editBookingDate" required onchange="updateEditTimeSlots()">
+
                 </div>
+
                 <div class="form-group">
+
                     <label>Dostępne godziny:</label>
+
                     <div class="time-slots" id="editTimeSlots"></div>
+
                 </div>
+
                 <div class="form-group">
+
                     <label>Uwagi:</label>
+
                     <textarea id="editClientNotes" rows="3"></textarea>
+
                 </div>
-                
+
+               
+
                 <div class="button-group">
+
                     <button onclick="saveBookingChanges()">Zapisz zmiany</button>
+
                     <button class="cancel-btn" onclick="closeEditModal()">Anuluj</button>
+
                     <button class="delete-btn" onclick="deleteCurrentBooking()">Usuń rezerwację</button>
+
                 </div>
+
             </div>
+
         </div>
+
     </div>
 
     <!-- Modal do archiwum -->
+
     <div id="archiveModal" class="modal">
+
         <div class="modal-content">
+
             <span class="close" onclick="closeArchiveModal()">&times;</span>
+
             <h2>Archiwalne rezerwacje</h2>
-            
+
+           
+
             <div class="search-box">
+
                 <input type="text" id="archiveSearchInput" placeholder="Szukaj w archiwum..." onkeyup="searchArchivedBookings()">
+
             </div>
 
             <div class="calendar-navigation">
+
                 <button onclick="changeArchiveCalendarWeek(-1)">← Poprzedni tydzień</button>
+
                 <span id="archiveCurrentWeekDisplay"></span>
+
                 <button onclick="changeArchiveCalendarWeek(1)">Następny tydzień →</button>
+
             </div>
-            
+
+           
+
             <div id="archiveCalendarView">
+
                 <div class="loading">Ładowanie archiwum kalendarza...</div>
+
             </div>
 
             <h3>Lista archiwalnych rezerwacji</h3>
+
             <div class="booking-list" id="archiveBookingList">
+
                 <div class="loading">Ładowanie archiwum...</div>
+
             </div>
+
         </div>
+
     </div>
 
     <!-- Firebase SDK -->
+
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <script>
+
         // TUTAJ WKLEJ SWOJE DANE Z FIREBASE
+
         const firebaseConfig = {
+
             apiKey: "AIzaSyAVZj2P7xApaZI-QjjwH8hP92tvVc5EehQ",
+
             authDomain: "moja-firma-rezerwacje.firebaseapp.com",
+
             projectId: "moja-firma-rezerwacje",
+
             storageBucket: "moja-firma-rezerwacje.firebasestorage.app",
+
             messagingSenderId: "460839390500",
+
             appId: "1:460839390500:web:cabc1186e077d642b037b1"
+
         };
 
         // TUTAJ WKLEJ SWOJE DANE Z EMAILJS
+
         const emailJSConfig = {
+
             publicKey: "oauFkFfwe4Cbewgrn", // np. "user_abcd1234"
+
             serviceId: "service_CarTax", // np. "service_gmail"
+
             templateId: "template_test" // np. "template_booking"
+
         };
 
         // Zmienne globalne
+
         let db = null;
+
         let selectedTime = null;
+
         let editSelectedTime = null;
+
         let currentEditBookingId = null;
+
         let isAdminLoggedIn = false;
+
         let currentWeekOffset = 0;
+
         let archiveWeekOffset = 0;
+
         let allBookings = [];
+
         let allServices = [];
+
         let archivedBookings = [];
+
         let settings = {
+
             adminPassword: "admin",
+
             openTime: "09:00",
+
             closeTime: "18:00",
+
             workingDays: [1, 2, 3, 4, 5]
+
         };
 
+        const MAX_SPECIAL_TIME_PER_DAY = 240; // 4 godziny w minutach
+
+        let editServiceId = null;
+
         // Inicjalizacja przy załadowaniu strony
+
         window.onload = function() {
+
             // Sprawdź czy dane Firebase są uzupełnione
+
             if (firebaseConfig.apiKey === "TUTAJ-WKLEJ-API-KEY") {
+
                 document.getElementById('firebaseSetup').style.display = 'block';
+
                 document.getElementById('mainApp').style.display = 'none';
+
                 return;
+
             }
-            
+
+           
+
             // Inicjalizuj Firebase i EmailJS
+
             initializeFirebase(firebaseConfig);
+
             initializeEmailJS();
-            
+
+           
+
             // Ustaw minimalną datę na dziś
+
             document.getElementById('bookingDate').min = new Date().toISOString().split('T')[0];
+
             document.getElementById('editBookingDate').min = new Date().toISOString().split('T')[0];
-            
+
+           
+
             // Domyślnie pokaż zakładkę klienta
+
             showTab('client');
+
         };
 
         // Inicjalizacja EmailJS
+
         function initializeEmailJS() {
+
             if (emailJSConfig.publicKey !== "TWÓJ_PUBLIC_KEY") {
+
                 emailjs.init(emailJSConfig.publicKey);
+
             }
+
         }
 
         // Funkcja wysyłania emaila z potwierdzeniem
+
         async function sendConfirmationEmail(booking, service) {
+
     console.log('🔄 Rozpoczynam wysyłanie emaila...');
-    
+
+   
+
     if (emailJSConfig.publicKey === "TWÓJ_PUBLIC_KEY") {
+
         console.log('❌ EmailJS nie skonfigurowane');
+
         return;
+
     }
 
     let carInfo = '';
+
     if (booking.carBrand || booking.carModel || booking.carYear) {
+
         carInfo = `Pojazd: ${booking.carBrand || ''} ${booking.carModel || ''} ${booking.carYear || ''}`;
+
+    }
+
+    let specialNote = '';
+
+    if (service.isSpecial) {
+
+        specialNote = 'Uwaga: Ta usługa jest dostępna tylko o godzinie 8:00. Prosimy zostawić auto i odebrać około 12:00-13:00.';
+
     }
 
     const templateParams = {
+
         to_email: booking.email,
+
         to_name: `${booking.firstName} ${booking.lastName}`,
+
         order_number: booking.orderNumber,
+
         service_name: service.name,
+
         service_description: service.description || 'Brak opisu',
+
         service_price: service.price,
+
         service_duration: service.duration,
+
         date: booking.date,
+
         time: booking.time,
+
         phone: booking.phone,
+
         notes: booking.notes || 'Brak uwag',
+
         car_info: carInfo || 'Nie dotyczy',
+
+        special_note: specialNote,
+
         company_name: 'CarTax'
+
     };
 
     // DODAJ TO DEBUGGING:
+
     console.log('📧 Dane booking:', booking);
+
     console.log('🔧 Dane service:', service);
+
     console.log('📨 Parametry template:', templateParams);
+
     console.log('🔑 EmailJS config:', emailJSConfig);
 
     try {
+
         const result = await emailjs.send(
+
             emailJSConfig.serviceId,
+
             emailJSConfig.templateId,
+
             templateParams
+
         );
+
         console.log('✅ Email wysłany pomyślnie!', result);
+
     } catch (error) {
+
         console.error('❌ Błąd wysyłania emaila:', error);
+
     }
+
 }
 
-
         // Sprawdzenie limitu rezerwacji na email
+
         async function checkEmailLimit(email, selectedDate) {
+
             const selectedDateTime = new Date(selectedDate);
+
             const weekStart = new Date(selectedDateTime);
+
             weekStart.setDate(selectedDateTime.getDate() - selectedDateTime.getDay());
+
             const weekEnd = new Date(weekStart);
+
             weekEnd.setDate(weekStart.getDate() + 6);
 
             const startDateStr = formatDate(weekStart);
+
             const endDateStr = formatDate(weekEnd);
 
             try {
+
                 const snapshot = await db.collection('bookings')
+
                     .where('email', '==', email)
+
                     .where('date', '>=', startDateStr)
+
                     .where('date', '<=', endDateStr)
+
                     .where('archived', '==', false)
+
                     .get();
 
                 return snapshot.size >= 30;
+
             } catch (error) {
+
                 console.error('Błąd sprawdzania limitu:', error);
+
                 return false;
+
             }
+
         }
 
         // Archiwizacja starych rezerwacji
+
         async function archiveOldBookings() {
+
             const today = new Date();
+
             today.setHours(0, 0, 0, 0);
-            
+
+           
+
             try {
+
                 const snapshot = await db.collection('bookings')
+
                     .where('archived', '==', false)
+
                     .get();
 
                 let archivedCount = 0;
+
                 const batch = db.batch();
 
                 snapshot.forEach(doc => {
+
                     const booking = doc.data();
+
                     const bookingDate = new Date(booking.date);
+
                     bookingDate.setHours(23, 59, 59, 999);
 
                     if (bookingDate < today) {
+
                         batch.update(doc.ref, { archived: true, archivedAt: firebase.firestore.FieldValue.serverTimestamp() });
+
                         archivedCount++;
+
                     }
+
                 });
 
                 if (archivedCount > 0) {
+
                     await batch.commit();
+
                     alert(`Zarchiwizowano ${archivedCount} starych rezerwacji`);
+
                     updateBookingList();
+
                     updateCalendar();
+
                 } else {
+
                     alert('Brak starych rezerwacji do archiwizacji');
+
                 }
+
             } catch (error) {
+
                 alert('Błąd archiwizacji: ' + error.message);
+
             }
+
         }
 
         // Pokaż archiwalne rezerwacje
+
         async function showArchivedBookings() {
+
             document.getElementById('archiveModal').style.display = 'block';
+
             await loadArchivedBookings();
+
             updateArchiveCalendar();
+
         }
 
         function closeArchiveModal() {
+
             document.getElementById('archiveModal').style.display = 'none';
+
         }
 
         async function loadArchivedBookings() {
+
             try {
+
                 const snapshot = await db.collection('bookings')
+
                     .where('archived', '==', true)
+
                     .orderBy('date', 'desc')
+
                     .get();
 
                 archivedBookings = [];
+
                 snapshot.forEach(doc => {
+
                     archivedBookings.push({ ...doc.data(), id: doc.id });
+
                 });
 
                 displayArchivedBookings(archivedBookings);
+
             } catch (error) {
+
                 console.error('Błąd ładowania archiwum:', error);
+
             }
+
         }
 
         function displayArchivedBookings(bookings) {
+
             const container = document.getElementById('archiveBookingList');
+
             container.innerHTML = '';
 
             if (bookings.length === 0) {
+
                 container.innerHTML = '<p style="color: #999;">Brak archiwalnych rezerwacji</p>';
+
                 return;
+
             }
 
             bookings.forEach((booking) => {
+
                 const service = allServices.find(s => s.id === booking.serviceId);
+
                 let carInfo = '';
+
                 if (booking.carBrand || booking.carModel || booking.carYear) {
+
                     carInfo = `<br><small>Pojazd: ${booking.carBrand || ''} ${booking.carModel || ''} ${booking.carYear || ''}</small>`;
+
                 }
 
                 const item = document.createElement('div');
+
                 item.className = 'booking-item';
+
                 item.style.background = '#f5f5f5';
+
                 item.innerHTML = `
+
                     <span style="color: #666;">
-                        <strong>${booking.date} ${booking.time}</strong> - 
-                        ${booking.firstName} ${booking.lastName} - 
-                        ${service ? service.name : 'Usługa usunięta'} - 
+
+                        <strong>${booking.date} ${booking.time}</strong> -
+
+                        ${booking.firstName} ${booking.lastName} -
+
+                        ${service ? service.name : 'Usługa usunięta'} -
+
                         Email: ${booking.email} - Tel: ${booking.phone}
+
                         ${carInfo}
+
                         ${booking.orderNumber ? '<br><small>Nr zamówienia: ' + booking.orderNumber + '</small>' : ''}
+
                         ${booking.notes ? '<br><small>Uwagi: ' + booking.notes + '</small>' : ''}
+
                         <br><small style="color: #999;">📁 Zarchiwizowano</small>
+
                     </span>
+
                     <div class="button-group">
+
                         <button class="delete-btn" onclick="deleteArchivedBooking('${booking.id}')">Usuń na stałe</button>
+
                     </div>
+
                 `;
+
                 container.appendChild(item);
+
             });
+
         }
 
         function searchArchivedBookings() {
+
             const searchTerm = document.getElementById('archiveSearchInput').value.toLowerCase();
+
             const filteredBookings = archivedBookings.filter(booking => {
+
                 return booking.firstName.toLowerCase().includes(searchTerm) ||
+
                        booking.lastName.toLowerCase().includes(searchTerm) ||
+
                        booking.phone.includes(searchTerm) ||
+
                        booking.email.toLowerCase().includes(searchTerm) ||
+
                        (booking.orderNumber && booking.orderNumber.toLowerCase().includes(searchTerm)) ||
+
                        (booking.carBrand && booking.carBrand.toLowerCase().includes(searchTerm)) ||
+
                        (booking.carModel && booking.carModel.toLowerCase().includes(searchTerm));
+
             });
+
             displayArchivedBookings(filteredBookings);
+
         }
 
         function changeArchiveCalendarWeek(direction) {
+
             archiveWeekOffset += direction;
+
             updateArchiveCalendar();
+
         }
 
         async function updateArchiveCalendar() {
+
             const container = document.getElementById('archiveCalendarView');
+
             const today = new Date();
+
             today.setDate(today.getDate() + (archiveWeekOffset * 7));
+
             const currentWeek = getWeekDates(today);
 
             // Aktualizuj wyświetlanie aktualnego tygodnia
+
             const weekDisplay = document.getElementById('archiveCurrentWeekDisplay');
+
             const startDate = currentWeek[0];
+
             const endDate = currentWeek[6];
+
             weekDisplay.textContent = `${startDate.getDate()}.${startDate.getMonth() + 1}.${startDate.getFullYear()} - ${endDate.getDate()}.${endDate.getMonth() + 1}.${endDate.getFullYear()}`;
 
             let html = '<table class="calendar-table"><tr><th>Godzina</th>';
 
             const dayNames = ['Ndz', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob'];
+
             currentWeek.forEach((date) => {
+
                 const dayIndex = date.getDay();
+
                 const isWorkingDay = settings.workingDays.includes(dayIndex);
+
                 html += `<th style="${!isWorkingDay ? 'background: #95a5a6;' : ''}">
+
                     ${dayNames[dayIndex]}<br>${date.getDate()}.${date.getMonth() + 1}
+
                 </th>`;
+
             });
+
             html += '</tr>';
 
             try {
+
                 // Pobierz archiwalne rezerwacje na ten tydzień
+
                 const startDateStr = formatDate(currentWeek[0]);
+
                 const endDateStr = formatDate(currentWeek[6]);
 
                 const snapshot = await db.collection('bookings')
+
                     .where('archived', '==', true)
+
                     .where('date', '>=', startDateStr)
+
                     .where('date', '<=', endDateStr)
+
                     .get();
 
-                const bookings = {};
+                const bookingsByTime = {};
 
-                // Organizuj rezerwacje
                 snapshot.forEach(doc => {
+
                     const booking = { ...doc.data(), id: doc.id };
+
                     const key = `${booking.date}_${booking.time}`;
-                    bookings[key] = booking;
+
+                    if (!bookingsByTime[key]) bookingsByTime[key] = [];
+
+                    bookingsByTime[key].push(booking);
+
                 });
 
                 const timeSlots = generateTimeSlots(settings.openTime, settings.closeTime);
 
                 timeSlots.forEach(time => {
+
                     html += `<tr><td style="font-weight: bold;">${time}</td>`;
+
                     currentWeek.forEach(date => {
+
                         const dateStr = formatDate(date);
+
                         const dayIndex = date.getDay();
+
                         const isWorkingDay = settings.workingDays.includes(dayIndex);
 
                         if (!isWorkingDay) {
-                            html += '<td style="background: #ecf0f1;"></td>';
-                        } else {
-                            const key = `${dateStr}_${time}`;
-                            const booking = bookings[key];
 
-                            if (booking) {
+                            html += '<td style="background: #ecf0f1;"></td>';
+
+                        } else {
+
+                            const key = `${dateStr}_${time}`;
+
+                            const bookings = bookingsByTime[key] || [];
+
+                            html += '<td>';
+
+                            bookings.forEach(booking => {
+
                                 const service = allServices.find(s => s.id === booking.serviceId);
-                                html += `<td>
+
+                                html += `
+
                                     <div class="booking-slot archived">
+
                                         ${booking.firstName} ${booking.lastName.charAt(0)}.<br>
+
                                         ${service ? service.name : ''}
+
                                         ${booking.orderNumber ? '<br><small>' + booking.orderNumber + '</small>' : ''}
+
                                     </div>
-                                </td>`;
-                            } else {
-                                html += '<td></td>';
-                            }
+
+                                `;
+
+                            });
+
+                            html += '</td>';
+
                         }
+
                     });
+
                     html += '</tr>';
+
                 });
 
                 html += '</table>';
+
                 container.innerHTML = html;
 
             } catch (error) {
+
                 container.innerHTML = '<p style="color: #e74c3c;">Błąd ładowania archiwum kalendarza</p>';
+
                 console.error(error);
+
             }
+
         }
 
         async function deleteArchivedBooking(id) {
+
             if (confirm('Czy na pewno chcesz usunąć tę rezerwację na stałe? Tej operacji nie można cofnąć.')) {
+
                 try {
+
                     await db.collection('bookings').doc(id).delete();
+
                     await loadArchivedBookings();
+
                     updateArchiveCalendar();
+
                     alert('Rezerwacja została usunięta na stałe');
+
                 } catch (error) {
+
                     alert('Błąd usuwania rezerwacji: ' + error.message);
+
                 }
+
             }
+
         }
 
         // Funkcje do obsługi pól danych auta
+
         function toggleCarFields() {
+
             const serviceId = document.getElementById('serviceSelect').value;
+
             const carFields = document.getElementById('carFields');
-            
+
+           
+
             if (serviceId) {
+
                 // Znajdź usługę w globalnej tablicy
+
                 const service = allServices.find(s => s.id === serviceId);
+
                 if (service && service.requireCarData) {
+
                     carFields.classList.add('active');
+
                     // Ustaw pola jako wymagane
+
                     document.getElementById('carBrand').required = true;
+
                     document.getElementById('carModel').required = true;
+
                     document.getElementById('carYear').required = true;
+
                 } else {
+
                     carFields.classList.remove('active');
+
                     // Usuń wymaganie pól
+
                     document.getElementById('carBrand').required = false;
+
                     document.getElementById('carModel').required = false;
+
                     document.getElementById('carYear').required = false;
+
                     // Wyczyść pola
+
                     document.getElementById('carBrand').value = '';
+
                     document.getElementById('carModel').value = '';
+
                     document.getElementById('carYear').value = '';
+
                 }
+
             } else {
+
                 carFields.classList.remove('active');
+
             }
+
         }
 
         function toggleEditCarFields() {
+
             const serviceId = document.getElementById('editServiceSelect').value;
+
             const carFields = document.getElementById('editCarFields');
-            
+
+           
+
             if (serviceId) {
+
                 // Znajdź usługę w globalnej tablicy
+
                 const service = allServices.find(s => s.id === serviceId);
+
                 if (service && service.requireCarData) {
+
                     carFields.classList.add('active');
+
                     // Ustaw pola jako wymagane
+
                     document.getElementById('editCarBrand').required = true;
+
                     document.getElementById('editCarModel').required = true;
+
                     document.getElementById('editCarYear').required = true;
+
                 } else {
+
                     carFields.classList.remove('active');
+
                     // Usuń wymaganie pól
+
                     document.getElementById('editCarBrand').required = false;
+
                     document.getElementById('editCarModel').required = false;
+
                     document.getElementById('editCarYear').required = false;
+
                 }
+
             } else {
+
                 carFields.classList.remove('active');
+
             }
+
         }
 
         function handleEnterKey(event) {
+
             if (event.key === 'Enter') {
+
                 loginAdmin();
+
             }
+
         }
 
         function toggleSection(sectionId) {
+
             const content = document.getElementById(sectionId);
+
             const header = content.previousElementSibling;
+
             const arrow = header.querySelector('span');
-            
+
+           
+
             if (content.classList.contains('active')) {
+
                 content.classList.remove('active');
+
                 arrow.textContent = '▼';
+
             } else {
+
                 content.classList.add('active');
+
                 arrow.textContent = '▲';
+
             }
+
         }
 
         function generateOrderNumber() {
+
             return 'CT' + Date.now().toString().slice(-8) + Math.floor(Math.random() * 100).toString().padStart(2, '0');
+
         }
 
         // Funkcje do wyszukiwania rezerwacji przez klienta
+
         async function findClientBooking() {
+
             const orderNumber = document.getElementById('clientOrderNumber').value.trim();
+
             const resultDiv = document.getElementById('clientBookingResult');
-            
+
+           
+
             if (!orderNumber) {
+
                 resultDiv.innerHTML = '<div class="error-message">Wpisz numer rezerwacji</div>';
+
                 return;
+
             }
-            
+
+           
+
             try {
+
                 const snapshot = await db.collection('bookings')
+
                     .where('orderNumber', '==', orderNumber)
+
                     .where('archived', '==', false)
+
                     .get();
-                
+
+               
+
                 if (snapshot.empty) {
+
                     resultDiv.innerHTML = '<div class="error-message">Nie znaleziono aktywnej rezerwacji o podanym numerze</div>';
+
                     return;
+
                 }
-                
+
+               
+
                 const bookingDoc = snapshot.docs[0];
+
                 const booking = bookingDoc.data();
+
                 const bookingId = bookingDoc.id;
-                
+
+               
+
                 // Pobierz informacje o usłudze
+
                 const serviceDoc = await db.collection('services').doc(booking.serviceId).get();
+
                 const service = serviceDoc.exists ? serviceDoc.data() : null;
-                
+
+               
+
                 let carInfo = '';
+
                 if (booking.carBrand || booking.carModel || booking.carYear) {
+
                     carInfo = `<p><strong>Pojazd:</strong> ${booking.carBrand || ''} ${booking.carModel || ''} ${booking.carYear || ''}</p>`;
+
                 }
-                
+
+               
+
                 resultDiv.innerHTML = `
+
                     <div class="booking-details">
+
                         <h3>Twoja rezerwacja</h3>
+
                         <p><strong>Numer:</strong> ${booking.orderNumber}</p>
+
                         <p><strong>Imię i nazwisko:</strong> ${booking.firstName} ${booking.lastName}</p>
+
                         <p><strong>Email:</strong> ${booking.email}</p>
+
                         <p><strong>Telefon:</strong> ${booking.phone}</p>
+
                         <p><strong>Usługa:</strong> ${service ? service.name : 'Usługa usunięta'}</p>
+
                         ${carInfo}
+
                         <p><strong>Data:</strong> ${booking.date}</p>
+
                         <p><strong>Godzina:</strong> ${booking.time}</p>
+
                         ${booking.notes ? '<p><strong>Uwagi:</strong> ' + booking.notes + '</p>' : ''}
+
                         <div class="button-group" style="margin-top: 15px;">
+
                             <button onclick="openEditModal('${bookingId}', false)">Zmień rezerwację</button>
+
                             <button class="delete-btn" onclick="cancelClientBooking('${bookingId}')">Anuluj rezerwację</button>
+
                         </div>
+
                     </div>
+
                 `;
+
             } catch (error) {
+
                 console.error('Błąd wyszukiwania rezerwacji:', error);
+
                 resultDiv.innerHTML = '<div class="error-message">Błąd podczas wyszukiwania rezerwacji</div>';
+
             }
+
         }
 
         async function cancelClientBooking(bookingId) {
+
             if (confirm('Czy na pewno chcesz anulować swoją rezerwację?')) {
+
                 try {
+
                     await db.collection('bookings').doc(bookingId).delete();
-                    document.getElementById('clientBookingResult').innerHTML = 
+
+                    document.getElementById('clientBookingResult').innerHTML =
+
                         '<div class="success-message">Rezerwacja została anulowana</div>';
+
                     document.getElementById('clientOrderNumber').value = '';
+
                 } catch (error) {
+
                     alert('Błąd podczas anulowania rezerwacji: ' + error.message);
+
                 }
+
             }
+
         }
 
         // Funkcje modala edycji
+
         async function openEditModal(bookingId, isAdmin = true) {
+
             currentEditBookingId = bookingId;
-            
+
+           
+
             try {
+
                 const doc = await db.collection('bookings').doc(bookingId).get();
+
                 if (!doc.exists) {
+
                     alert('Rezerwacja nie została znaleziona');
+
                     return;
+
                 }
-                
+
+               
+
                 const booking = doc.data();
-                
+
+               
+
                 // Pobierz informacje o usłudze
+
                 const serviceDoc = await db.collection('services').doc(booking.serviceId).get();
+
                 const service = serviceDoc.exists ? serviceDoc.data() : null;
-                
+
+               
+
                 let carInfo = '';
+
                 if (booking.carBrand || booking.carModel || booking.carYear) {
+
                     carInfo = `<p><strong>Pojazd:</strong> ${booking.carBrand || ''} ${booking.carModel || ''} ${booking.carYear || ''}</p>`;
+
                 }
-                
+
+               
+
                 // Wypełnij szczegóły aktualnej rezerwacji
+
                 document.getElementById('currentBookingDetails').innerHTML = `
+
                     <h3>Aktualna rezerwacja</h3>
+
                     <p><strong>Numer:</strong> ${booking.orderNumber}</p>
+
                     <p><strong>Klient:</strong> ${booking.firstName} ${booking.lastName}</p>
+
                     <p><strong>Email:</strong> ${booking.email}</p>
+
                     <p><strong>Telefon:</strong> ${booking.phone}</p>
+
                     <p><strong>Usługa:</strong> ${service ? service.name : 'Usługa usunięta'}</p>
+
                     ${carInfo}
+
                     <p><strong>Data:</strong> ${booking.date}</p>
+
                     <p><strong>Godzina:</strong> ${booking.time}</p>
+
                     ${booking.notes ? '<p><strong>Uwagi:</strong> ' + booking.notes + '</p>' : ''}
+
                 `;
-                
+
+               
+
                 // Wypełnij formularz edycji
+
                 document.getElementById('editFirstName').value = booking.firstName;
+
                 document.getElementById('editLastName').value = booking.lastName;
+
                 document.getElementById('editEmail').value = booking.email;
+
                 document.getElementById('editPhone').value = booking.phone;
+
                 document.getElementById('editServiceSelect').value = booking.serviceId;
+
                 document.getElementById('editBookingDate').value = booking.date;
+
                 document.getElementById('editClientNotes').value = booking.notes || '';
-                
+
+               
+
                 // Wypełnij dane auta jeśli istnieją
+
                 document.getElementById('editCarBrand').value = booking.carBrand || '';
+
                 document.getElementById('editCarModel').value = booking.carModel || '';
+
                 document.getElementById('editCarYear').value = booking.carYear || '';
-                
+
+               
+
                 // Załaduj usługi do selecta
+
                 await loadServicesForEdit();
+
                 document.getElementById('editServiceSelect').value = booking.serviceId;
-                
+
+               
+
                 // Pokaż/ukryj pola auta
+
                 toggleEditCarFields();
-                
+
+               
+
                 // Aktualizuj dostępne godziny
+
                 await updateEditTimeSlots();
-                
+
+               
+
                 // Zaznacz aktualną godzinę
+
                 const timeSlots = document.querySelectorAll('#editTimeSlots .time-slot');
+
                 timeSlots.forEach(slot => {
+
                     if (slot.textContent === booking.time) {
+
                         slot.classList.add('selected');
+
                         editSelectedTime = booking.time;
+
                     }
+
                 });
-                
+
+               
+
                 // Pokaż modal
+
                 document.getElementById('editModal').style.display = 'block';
+
                 document.getElementById('editBookingForm').classList.add('active');
-                
+
+               
+
             } catch (error) {
+
                 console.error('Błąd ładowania rezerwacji:', error);
+
                 alert('Błąd podczas ładowania danych rezerwacji');
+
             }
+
         }
 
         function closeEditModal() {
+
             document.getElementById('editModal').style.display = 'none';
+
             document.getElementById('editBookingForm').classList.remove('active');
+
             currentEditBookingId = null;
+
             editSelectedTime = null;
+
         }
 
         async function loadServicesForEdit() {
+
             const select = document.getElementById('editServiceSelect');
+
             select.innerHTML = '<option value="">-- Wybierz usługę --</option>';
-            
+
+           
+
             try {
+
                 const snapshot = await db.collection('services').orderBy('name').get();
+
                 snapshot.forEach((doc) => {
+
                     const service = doc.data();
+
                     const option = document.createElement('option');
+
                     option.value = doc.id;
+
                     option.textContent = `${service.name} - ${service.price} zł (${service.duration} min)`;
+
                     select.appendChild(option);
+
                 });
+
             } catch (error) {
+
                 console.error('Błąd pobierania usług:', error);
+
             }
+
         }
 
         async function updateEditTimeSlots() {
+
             const container = document.getElementById('editTimeSlots');
+
             const selectedDate = document.getElementById('editBookingDate').value;
+
             const selectedServiceId = document.getElementById('editServiceSelect').value;
-            
+
+           
+
             if (!selectedDate) {
+
                 container.innerHTML = '<p style="color: #999;">Wybierz najpierw datę</p>';
+
                 return;
+
             }
-            
+
+           
+
             const date = new Date(selectedDate);
+
             const dayOfWeek = date.getDay();
-            
+
+           
+
             // Sprawdź czy to dzień roboczy
+
             if (!settings.workingDays.includes(dayOfWeek)) {
+
                 container.innerHTML = '<p style="color: #e74c3c;">W tym dniu firma jest nieczynna</p>';
+
                 return;
+
             }
-            
+
+           
+
             container.innerHTML = '';
-            const timeSlots = generateTimeSlots(settings.openTime, settings.closeTime);
-            
+
+            let timeSlots = generateTimeSlots(settings.openTime, settings.closeTime);
+
+           
+
             try {
+
                 const snapshot = await db.collection('bookings')
+
                     .where('date', '==', selectedDate)
+
                     .where('archived', '==', false)
+
                     .get();
-                
+
+               
+
                 const bookings = [];
+
                 const servicesMap = new Map();
-                
+
+               
+
                 // Pobierz wszystkie usługi do mapy
+
                 const servicesSnapshot = await db.collection('services').get();
+
                 servicesSnapshot.forEach(doc => {
+
                     servicesMap.set(doc.id, doc.data());
+
                 });
-                
+
+               
+
                 // Zbierz rezerwacje z czasem trwania (pomijając edytowaną rezerwację)
+
                 snapshot.forEach((doc) => {
+
                     if (doc.id !== currentEditBookingId) {
+
                         const booking = doc.data();
+
                         const service = servicesMap.get(booking.serviceId);
+
                         if (service) {
+
                             bookings.push({
+
                                 time: booking.time,
-                                duration: service.duration || 30
+
+                                duration: service.duration || 30,
+
+                                serviceId: booking.serviceId
+
                             });
+
                         }
+
                     }
+
                 });
-                
+
+               
+
+                const selectedService = selectedServiceId ? servicesMap.get(selectedServiceId) : null;
+
+               
+
+                if (selectedService) {
+
+                    if (selectedService.availableDays && selectedService.availableDays.length > 0 && !selectedService.availableDays.includes(dayOfWeek)) {
+
+                        container.innerHTML = '<p style="color: #e74c3c;">Usługa niedostępna w tym dniu</p>';
+
+                        return;
+
+                    }
+
+                   
+
+                    const availFrom = selectedService.availableFrom || settings.openTime;
+
+                    const availTo = selectedService.availableTo || settings.closeTime;
+
+                    timeSlots = generateTimeSlots(availFrom, availTo);
+
+                   
+
+                    if (selectedService.isSpecial) {
+
+                        timeSlots = ['08:00'];
+
+                        let totalSpecialTime = 0;
+
+                        bookings.forEach(b => {
+
+                            const bService = servicesMap.get(b.serviceId);
+
+                            if (bService && bService.isSpecial) {
+
+                                totalSpecialTime += bService.executionTime || 0;
+
+                            }
+
+                        });
+
+                        if (totalSpecialTime + selectedService.executionTime > MAX_SPECIAL_TIME_PER_DAY) {
+
+                            container.innerHTML = '<p style="color: #e74c3c;">Brak miejsc na ten dzień dla tej usługi specjalnej</p>';
+
+                            return;
+
+                        }
+
+                    }
+
+                }
+
+               
+
                 // Funkcja sprawdzająca czy slot jest zajęty
+
                 function isSlotBlocked(slotTime) {
+
+                    if (selectedService && selectedService.isSpecial) {
+
+                        return false; // Dla specjalnych nie sprawdzamy kolizji slotów
+
+                    }
+
                     const slotMinutes = timeToMinutes(slotTime);
-                    
+
+                   
+
                     for (const booking of bookings) {
+
+                        if (servicesMap.get(booking.serviceId).isSpecial) continue; // Pomijaj specjalne w kolizjach
+
                         const bookingStart = timeToMinutes(booking.time);
+
                         const bookingEnd = bookingStart + booking.duration;
-                        
+
+                       
+
                         if (selectedServiceId) {
+
                             const selectedService = servicesMap.get(selectedServiceId);
+
                             if (selectedService) {
+
                                 const ourServiceEnd = slotMinutes + selectedService.duration;
-                                
+
+                               
+
                                 if ((slotMinutes >= bookingStart && slotMinutes < bookingEnd) ||
+
                                     (ourServiceEnd > bookingStart && ourServiceEnd <= bookingEnd) ||
+
                                     (slotMinutes <= bookingStart && ourServiceEnd >= bookingEnd)) {
+
                                     return true;
+
                                 }
+
                             }
+
                         } else {
+
                             if (slotMinutes >= bookingStart && slotMinutes < bookingEnd) {
+
                                 return true;
+
                             }
+
                         }
+
                     }
+
                     return false;
+
                 }
-                
+
+               
+
                 function timeToMinutes(time) {
+
                     const [hours, minutes] = time.split(':').map(Number);
+
                     return hours * 60 + minutes;
+
                 }
-                
+
+               
+
                 timeSlots.forEach(time => {
+
                     const slot = document.createElement('div');
+
                     slot.className = 'time-slot';
+
                     slot.textContent = time;
-                    
+
+                   
+
                     if (isSlotBlocked(time)) {
+
                         slot.classList.add('booked');
+
                         slot.title = 'Termin niedostępny';
+
                     } else {
+
                         if (selectedServiceId) {
+
                             const selectedService = servicesMap.get(selectedServiceId);
+
                             if (selectedService) {
+
                                 const slotMinutes = timeToMinutes(time);
+
                                 const closeMinutes = timeToMinutes(settings.closeTime);
+
                                 if (slotMinutes + selectedService.duration > closeMinutes) {
+
                                     slot.classList.add('booked');
+
                                     slot.title = 'Usługa nie zmieści się przed zamknięciem';
+
                                     return;
+
                                 }
+
                             }
+
                         }
+
                         slot.onclick = () => selectEditTime(time, slot);
+
                     }
-                    
+
+                   
+
                     container.appendChild(slot);
+
                 });
-                
+
+               
+
             } catch (error) {
+
                 console.error('Błąd pobierania rezerwacji:', error);
+
             }
+
         }
 
         function selectEditTime(time, element) {
-            document.querySelectorAll('#editTimeSlots .time-slot').forEach(slot => 
+
+            document.querySelectorAll('#editTimeSlots .time-slot').forEach(slot =>
+
                 slot.classList.remove('selected')
+
             );
-            
+
+           
+
             element.classList.add('selected');
+
             editSelectedTime = time;
+
         }
 
         async function saveBookingChanges() {
+
             if (!editSelectedTime) {
+
                 alert('Wybierz godzinę rezerwacji');
+
                 return;
+
             }
-            
+
+           
+
             // Sprawdź czy dane auta są wymagane
+
             const serviceId = document.getElementById('editServiceSelect').value;
+
             const service = allServices.find(s => s.id === serviceId);
-            
+
+           
+
             if (service && service.requireCarData) {
+
                 const carBrand = document.getElementById('editCarBrand').value.trim();
+
                 const carModel = document.getElementById('editCarModel').value.trim();
+
                 const carYear = document.getElementById('editCarYear').value.trim();
-                
+
+               
+
                 if (!carBrand || !carModel || !carYear) {
+
                     alert('Wypełnij wszystkie dane pojazdu');
+
                     return;
+
                 }
+
             }
-            
+
+           
+
             const updatedBooking = {
+
                 firstName: document.getElementById('editFirstName').value,
+
                 lastName: document.getElementById('editLastName').value,
+
                 email: document.getElementById('editEmail').value,
+
                 phone: document.getElementById('editPhone').value,
+
                 serviceId: serviceId,
+
                 date: document.getElementById('editBookingDate').value,
+
                 time: editSelectedTime,
+
                 notes: document.getElementById('editClientNotes').value || ''
+
             };
-            
+
+           
+
             // Dodaj dane auta jeśli są wymagane
+
             if (service && service.requireCarData) {
+
                 updatedBooking.carBrand = document.getElementById('editCarBrand').value.trim();
+
                 updatedBooking.carModel = document.getElementById('editCarModel').value.trim();
+
                 updatedBooking.carYear = document.getElementById('editCarYear').value.trim();
+
             } else {
+
                 // Usuń dane auta jeśli nie są wymagane
+
                 updatedBooking.carBrand = firebase.firestore.FieldValue.delete();
+
                 updatedBooking.carModel = firebase.firestore.FieldValue.delete();
+
                 updatedBooking.carYear = firebase.firestore.FieldValue.delete();
+
             }
-            
+
+           
+
             try {
+
                 await db.collection('bookings').doc(currentEditBookingId).update(updatedBooking);
+
                 alert('Rezerwacja została zaktualizowana');
+
                 closeEditModal();
-                
+
+               
+
                 // Odśwież wyświetlanie
+
                 if (isAdminLoggedIn) {
+
                     updateBookingList();
+
                     updateCalendar();
+
                 }
-                
+
+               
+
                 // Jeśli to klient, odśwież wyniki wyszukiwania
+
                 if (document.getElementById('clientBookingResult').innerHTML !== '') {
+
                     findClientBooking();
+
                 }
-                
+
+               
+
             } catch (error) {
+
                 alert('Błąd podczas aktualizacji rezerwacji: ' + error.message);
+
                 console.error(error);
+
             }
+
         }
 
         async function deleteCurrentBooking() {
+
             if (confirm('Czy na pewno chcesz usunąć tę rezerwację?')) {
+
                 try {
+
                     await db.collection('bookings').doc(currentEditBookingId).delete();
+
                     alert('Rezerwacja została usunięta');
+
                     closeEditModal();
-                    
+
+                   
+
                     // Odśwież wyświetlanie
+
                     if (isAdminLoggedIn) {
+
                         updateBookingList();
+
                         updateCalendar();
+
                     }
-                    
+
+                   
+
                     // Jeśli to klient, wyczyść wyniki
+
                     if (document.getElementById('clientBookingResult').innerHTML !== '') {
-                        document.getElementById('clientBookingResult').innerHTML = 
+
+                        document.getElementById('clientBookingResult').innerHTML =
+
                             '<div class="success-message">Rezerwacja została usunięta</div>';
+
                         document.getElementById('clientOrderNumber').value = '';
+
                     }
-                    
+
+                   
+
                 } catch (error) {
+
                     alert('Błąd podczas usuwania rezerwacji: ' + error.message);
+
                 }
+
             }
+
         }
 
         function saveFirebaseConfig() {
+
             alert('Aby zapisać konfigurację na stałe:\n\n1. Otwórz plik HTML w edytorze tekstu\n2. Znajdź linię "const firebaseConfig = {"\n3. Zastąp wartości "TUTAJ-WKLEJ-..." swoimi danymi\n4. Zapisz plik i wgraj ponownie na GitHub\n\nPo tej operacji formularz konfiguracji zniknie dla wszystkich użytkowników.');
+
         }
 
         function initializeFirebase(config) {
+
             try {
+
                 // Inicjalizacja Firebase
+
                 firebase.initializeApp(config);
+
                 db = firebase.firestore();
 
                 // Ukryj formularz konfiguracji
+
                 document.getElementById('firebaseSetup').style.display = 'none';
+
                 document.getElementById('mainApp').style.display = 'block';
 
                 // Załaduj dane
+
                 loadSettings();
+
                 loadServices();
+
                 loadBookings();
 
                 // Nasłuchuj na zmiany
+
                 listenToServices();
+
                 listenToBookings();
 
             } catch (error) {
+
                 alert('Błąd inicjalizacji Firebase: ' + error.message);
+
                 console.error(error);
+
             }
+
         }
 
         async function loadSettings() {
+
             try {
+
                 const doc = await db.collection('settings').doc('main').get();
+
                 if (doc.exists) {
+
                     settings = doc.data();
+
                     applySettings();
+
                 } else {
+
                     // Utwórz domyślne ustawienia
+
                     await db.collection('settings').doc('main').set(settings);
+
                 }
+
             } catch (error) {
+
                 console.error('Błąd ładowania ustawień:', error);
+
             }
+
         }
 
         function applySettings() {
+
             document.getElementById('openTime').value = settings.openTime;
+
             document.getElementById('closeTime').value = settings.closeTime;
-            
+
+           
+
             for (let i = 0; i <= 6; i++) {
+
                 const checkbox = document.getElementById(`day-${i}`);
+
                 if (checkbox) {
+
                     checkbox.checked = settings.workingDays.includes(i);
+
                 }
+
             }
+
         }
 
         async function changePassword() {
+
             const currentPassword = document.getElementById('currentPassword').value;
+
             const newPassword = document.getElementById('newPassword').value;
+
             const confirmPassword = document.getElementById('confirmPassword').value;
-            
+
+           
+
             // Sprawdź czy wszystkie pola są wypełnione
+
             if (!currentPassword || !newPassword || !confirmPassword) {
+
                 alert('Wypełnij wszystkie pola');
+
                 return;
+
             }
-            
+
+           
+
             // Sprawdź czy aktualne hasło jest poprawne
+
             if (currentPassword !== settings.adminPassword) {
+
                 alert('Nieprawidłowe aktualne hasło');
+
                 return;
+
             }
-            
+
+           
+
             // Sprawdź czy nowe hasła się zgadzają
+
             if (newPassword !== confirmPassword) {
+
                 alert('Nowe hasła nie są identyczne');
+
                 return;
+
             }
-            
+
+           
+
             // Sprawdź minimalną długość hasła
+
             if (newPassword.length < 4) {
+
                 alert('Nowe hasło musi mieć co najmniej 4 znaki');
+
                 return;
+
             }
-            
+
+           
+
             try {
+
                 await db.collection('settings').doc('main').update({
+
                     adminPassword: newPassword
+
                 });
+
                 settings.adminPassword = newPassword;
-                
+
+               
+
                 // Wyczyść pola
+
                 document.getElementById('currentPassword').value = '';
+
                 document.getElementById('newPassword').value = '';
+
                 document.getElementById('confirmPassword').value = '';
-                
+
+               
+
                 alert('Hasło zostało pomyślnie zmienione');
+
             } catch (error) {
+
                 alert('Błąd zmiany hasła: ' + error.message);
+
             }
+
         }
 
         async function updateWorkingHours() {
+
             settings.openTime = document.getElementById('openTime').value;
+
             settings.closeTime = document.getElementById('closeTime').value;
-            
+
+           
+
             try {
+
                 await db.collection('settings').doc('main').update({
+
                     openTime: settings.openTime,
+
                     closeTime: settings.closeTime
+
                 });
+
                 updateTimeSlots();
+
             } catch (error) {
+
                 console.error('Błąd aktualizacji godzin:', error);
+
             }
+
         }
 
         async function updateWorkingDays() {
+
             settings.workingDays = [];
+
             for (let i = 0; i <= 6; i++) {
+
                 const checkbox = document.getElementById(`day-${i}`);
+
                 if (checkbox && checkbox.checked) {
+
                     settings.workingDays.push(i);
+
                 }
+
             }
-            
+
+           
+
             try {
+
                 await db.collection('settings').doc('main').update({
+
                     workingDays: settings.workingDays
+
                 });
+
             } catch (error) {
+
                 console.error('Błąd aktualizacji dni:', error);
+
             }
+
         }
 
         function showTab(tabName) {
+
             const tabs = document.querySelectorAll('.tab-content');
+
             const buttons = document.querySelectorAll('.tab-button');
-            
+
+           
+
             tabs.forEach(tab => tab.classList.remove('active'));
+
             buttons.forEach(btn => btn.classList.remove('active'));
-            
+
+           
+
             document.getElementById(tabName).classList.add('active');
-            
+
+           
+
             // Znajdź odpowiedni przycisk i oznacz jako aktywny
+
             buttons.forEach(btn => {
+
                 if ((tabName === 'client' && btn.textContent.includes('Nowa')) ||
+
                     (tabName === 'edit' && btn.textContent.includes('Zmień')) ||
+
                     (tabName === 'admin' && btn.textContent.includes('Administrator'))) {
+
                     btn.classList.add('active');
+
                 }
+
             });
+
         }
 
         function changeCalendarWeek(direction) {
+
             currentWeekOffset += direction;
+
             updateCalendar();
+
         }
 
         function searchBookings() {
+
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
             const filteredBookings = allBookings.filter(booking => {
+
                 return !booking.archived && (
+
                     booking.firstName.toLowerCase().includes(searchTerm) ||
+
                     booking.lastName.toLowerCase().includes(searchTerm) ||
+
                     booking.phone.includes(searchTerm) ||
+
                     booking.email.toLowerCase().includes(searchTerm) ||
+
                     (booking.orderNumber && booking.orderNumber.toLowerCase().includes(searchTerm)) ||
+
                     (booking.carBrand && booking.carBrand.toLowerCase().includes(searchTerm)) ||
+
                     (booking.carModel && booking.carModel.toLowerCase().includes(searchTerm))
+
                 );
+
             });
+
             displayFilteredBookings(filteredBookings);
+
         }
 
         function displayFilteredBookings(bookings) {
+
             const container = document.getElementById('bookingList');
+
             container.innerHTML = '';
-            
+
+           
+
             if (bookings.length === 0) {
+
                 container.innerHTML = '<p style="color: #999;">Brak wyników wyszukiwania</p>';
+
                 return;
+
             }
-            
+
+           
+
             // Pobierz usługi
+
             db.collection('services').get().then(servicesSnapshot => {
+
                 const services = {};
+
                 servicesSnapshot.forEach(doc => {
+
                     services[doc.id] = doc.data();
+
                 });
-                
+
+               
+
                 bookings.forEach((booking) => {
+
                     const service = services[booking.serviceId];
+
                     let carInfo = '';
+
                     if (booking.carBrand || booking.carModel || booking.carYear) {
+
                         carInfo = `<br><small>Pojazd: ${booking.carBrand || ''} ${booking.carModel || ''} ${booking.carYear || ''}</small>`;
+
                     }
-                    
+
+                   
+
                     const item = document.createElement('div');
+
                     item.className = 'booking-item';
+
                     item.innerHTML = `
+
                         <span>
-                            <strong>${booking.date} ${booking.time}</strong> - 
-                            ${booking.firstName} ${booking.lastName} - 
-                            ${service ? service.name : 'Usługa usunięta'} - 
+
+                            <strong>${booking.date} ${booking.time}</strong> -
+
+                            ${booking.firstName} ${booking.lastName} -
+
+                            ${service ? service.name : 'Usługa usunięta'} -
+
                             Email: ${booking.email} - Tel: ${booking.phone}
+
                             ${carInfo}
+
                             ${booking.orderNumber ? '<br><small>Nr zamówienia: ' + booking.orderNumber + '</small>' : ''}
+
                             ${booking.notes ? '<br><small>Uwagi: ' + booking.notes + '</small>' : ''}
+
                         </span>
+
                         <div class="button-group">
+
                             <button class="edit-btn" onclick="openEditModal('${booking.id}', true)">Edytuj</button>
+
                             <button class="delete-btn" onclick="deleteBooking('${booking.id}')">Usuń</button>
+
                         </div>
+
                     `;
+
                     container.appendChild(item);
+
                 });
+
             });
+
         }
 
         // Nasłuchiwanie na zmiany w usługach
+
         function listenToServices() {
+
             db.collection('services').onSnapshot((snapshot) => {
+
                 allServices = [];
+
                 snapshot.forEach(doc => {
+
                     allServices.push({ ...doc.data(), id: doc.id });
+
                 });
-                
+
+               
+
                 loadServicesForClient();
+
                 if (isAdminLoggedIn) {
+
                     updateServiceList();
+
                 }
+
             });
+
         }
 
         // Nasłuchiwanie na zmiany w rezerwacjach
+
         function listenToBookings() {
+
             db.collection('bookings').onSnapshot((snapshot) => {
+
                 // Aktualizuj globalną tablicę rezerwacji
+
                 allBookings = [];
+
                 snapshot.forEach(doc => {
+
                     allBookings.push({ ...doc.data(), id: doc.id });
+
                 });
-                
+
+               
+
                 const selectedDate = document.getElementById('bookingDate').value;
+
                 if (selectedDate) {
+
                     updateTimeSlots();
+
                 }
+
                 if (isAdminLoggedIn) {
+
                     updateBookingList();
+
                     updateCalendar();
+
                 }
+
             });
+
         }
 
         async function loadServices() {
+
             try {
+
                 await loadServicesForClient();
+
             } catch (error) {
+
                 console.error('Błąd ładowania usług:', error);
+
             }
+
         }
 
         async function loadServicesForClient() {
+
             const select = document.getElementById('serviceSelect');
+
             const currentValue = select.value;
+
             select.innerHTML = '<option value="">-- Wybierz usługę --</option>';
-            
+
+           
+
             try {
+
                 const snapshot = await db.collection('services').orderBy('name').get();
+
                 snapshot.forEach((doc) => {
+
                     const service = doc.data();
+
                     const option = document.createElement('option');
+
                     option.value = doc.id;
+
                     option.textContent = `${service.name} - ${service.price} zł (${service.duration} min)`;
-                    if (service.description) {
-                        option.title = service.description;
-                    }
+
                     select.appendChild(option);
+
                 });
-                
+
+               
+
                 // Przywróć poprzednią wartość jeśli istnieje
+
                 if (currentValue) {
+
                     select.value = currentValue;
+
                 }
+
             } catch (error) {
+
                 console.error('Błąd pobierania usług:', error);
+
             }
+
         }
 
         async function loadBookings() {
+
             try {
+
                 const snapshot = await db.collection('bookings').get();
+
                 allBookings = [];
+
                 snapshot.forEach(doc => {
+
                     allBookings.push({ ...doc.data(), id: doc.id });
+
                 });
-                
+
+               
+
                 if (isAdminLoggedIn) {
+
                     updateBookingList();
+
                     updateCalendar();
+
                 }
+
             } catch (error) {
+
                 console.error('Błąd ładowania rezerwacji:', error);
+
             }
+
         }
 
         async function updateServiceSelect() {
+
             const select = document.getElementById('serviceSelect');
+
             select.innerHTML = '<option value="">-- Wybierz usługę --</option>';
-            
+
+           
+
             try {
+
                 const snapshot = await db.collection('services').orderBy('name').get();
+
                 snapshot.forEach((doc) => {
+
                     const service = doc.data();
+
                     const option = document.createElement('option');
+
                     option.value = doc.id;
+
                     option.textContent = `${service.name} - ${service.price} zł (${service.duration} min)`;
-                    if (service.description) {
-                        option.title = service.description;
-                    }
+
                     select.appendChild(option);
+
                 });
+
             } catch (error) {
+
                 console.error('Błąd pobierania usług:', error);
+
             }
+
         }
 
-        // Dodaj event listener dla wyświetlania opisu usługi
-        document.getElementById('serviceSelect').addEventListener('change', async function() {
-            const serviceId = this.value;
+        // Funkcja wyświetlająca szczegóły usługi
+
+        async function showServiceDetails() {
+
+            const serviceId = document.getElementById('serviceSelect').value;
+
+            const detailsDiv = document.getElementById('serviceDetails');
+
+            detailsDiv.innerHTML = '';
+
             if (serviceId) {
+
                 try {
+
                     const doc = await db.collection('services').doc(serviceId).get();
-                    if (doc.exists && doc.data().description) {
-                        const descDiv = document.getElementById('serviceDescription');
-                        if (!descDiv) {
-                            const div = document.createElement('div');
-                            div.id = 'serviceDescription';
-                            div.className = 'service-description';
-                            div.style.marginTop = '10px';
-                            div.style.padding = '10px';
-                            div.style.background = '#f0f0f0';
-                            div.style.borderRadius = '5px';
-                            this.parentElement.appendChild(div);
+
+                    if (doc.exists) {
+
+                        const service = doc.data();
+
+                        let html = '';
+
+                        if (service.description) {
+
+                            html += `<div class="service-description"><strong>Opis:</strong> ${service.description}</div>`;
+
                         }
-                        document.getElementById('serviceDescription').innerHTML = `<strong>Opis:</strong> ${doc.data().description}`;
-                    } else {
-                        const descDiv = document.getElementById('serviceDescription');
-                        if (descDiv) descDiv.remove();
+
+                        if (service.isSpecial) {
+
+                            html += `<div class="special-info">Uwaga: Ta usługa jest dostępna tylko o godzinie 8:00. Auto należy zostawić i odebrać około 12:00-13:00.</div>`;
+
+                        }
+
+                        detailsDiv.innerHTML = html;
+
                     }
+
                 } catch (error) {
-                    console.error('Błąd pobierania opisu usługi:', error);
+
+                    console.error('Błąd pobierania szczegółów usługi:', error);
+
                 }
-            } else {
-                const descDiv = document.getElementById('serviceDescription');
-                if (descDiv) descDiv.remove();
+
             }
-        });
+
+        }
+
+        // Dodaj event listener dla wyświetlania szczegółów usługi
+
+        document.getElementById('serviceSelect').addEventListener('change', showServiceDetails);
 
         function generateTimeSlots(startTime, endTime) {
+
             const slots = [];
+
             const start = new Date(`2000-01-01 ${startTime}`);
+
             const end = new Date(`2000-01-01 ${endTime}`);
-            
+
+           
+
             while (start < end) {
+
                 slots.push(start.toTimeString().slice(0, 5));
+
                 start.setMinutes(start.getMinutes() + 30);
+
             }
-            
+
+           
+
             return slots;
+
         }
 
         async function updateTimeSlots() {
+
             const container = document.getElementById('timeSlots');
+
             const selectedDate = document.getElementById('bookingDate').value;
+
             const selectedServiceId = document.getElementById('serviceSelect').value;
-            
+
+           
+
             if (!selectedDate) {
+
                 container.innerHTML = '<p style="color: #999;">Wybierz najpierw datę</p>';
+
                 return;
+
             }
-            
+
+           
+
             const date = new Date(selectedDate);
+
             const dayOfWeek = date.getDay();
-            
+
+           
+
             // Sprawdź czy to dzień roboczy
+
             if (!settings.workingDays.includes(dayOfWeek)) {
+
                 container.innerHTML = '<p style="color: #e74c3c;">W tym dniu firma jest nieczynna</p>';
+
                 return;
+
             }
-            
+
+           
+
             container.innerHTML = '';
-            const timeSlots = generateTimeSlots(settings.openTime, settings.closeTime);
-            
+
+            let timeSlots = generateTimeSlots(settings.openTime, settings.closeTime);
+
+           
+
             // Pobierz rezerwacje na wybrany dzień
+
             try {
+
                 const snapshot = await db.collection('bookings')
+
                     .where('date', '==', selectedDate)
+
                     .where('archived', '==', false)
+
                     .get();
-                
+
+               
+
                 const bookings = [];
+
                 const servicesMap = new Map();
-                
+
+               
+
                 // Pobierz wszystkie usługi do mapy
+
                 const servicesSnapshot = await db.collection('services').get();
+
                 servicesSnapshot.forEach(doc => {
+
                     servicesMap.set(doc.id, doc.data());
+
                 });
-                
+
+               
+
                 // Zbierz rezerwacje z czasem trwania
+
                 snapshot.forEach((doc) => {
+
                     const booking = doc.data();
+
                     const service = servicesMap.get(booking.serviceId);
+
                     if (service) {
+
                         bookings.push({
+
                             time: booking.time,
-                            duration: service.duration || 30
+
+                            duration: service.duration || 30,
+
+                            serviceId: booking.serviceId
+
                         });
+
                     }
+
                 });
-                
+
+               
+
+                const selectedService = selectedServiceId ? servicesMap.get(selectedServiceId) : null;
+
+               
+
+                if (selectedService) {
+
+                    if (selectedService.availableDays && selectedService.availableDays.length > 0 && !selectedService.availableDays.includes(dayOfWeek)) {
+
+                        container.innerHTML = '<p style="color: #e74c3c;">Usługa niedostępna w tym dniu</p>';
+
+                        return;
+
+                    }
+
+                   
+
+                    const availFrom = selectedService.availableFrom || settings.openTime;
+
+                    const availTo = selectedService.availableTo || settings.closeTime;
+
+                    timeSlots = generateTimeSlots(availFrom, availTo);
+
+                   
+
+                    if (selectedService.isSpecial) {
+
+                        timeSlots = ['08:00'];
+
+                        let totalSpecialTime = 0;
+
+                        bookings.forEach(b => {
+
+                            const bService = servicesMap.get(b.serviceId);
+
+                            if (bService && bService.isSpecial) {
+
+                                totalSpecialTime += bService.executionTime || 0;
+
+                            }
+
+                        });
+
+                        if (totalSpecialTime + selectedService.executionTime > MAX_SPECIAL_TIME_PER_DAY) {
+
+                            container.innerHTML = '<p style="color: #e74c3c;">Brak miejsc na ten dzień dla tej usługi specjalnej</p>';
+
+                            return;
+
+                        }
+
+                    }
+
+                } else {
+
+                    container.innerHTML = '<p style="color: #e67e22; margin-bottom: 10px;">Wybierz najpierw usługę, aby zobaczyć dokładną dostępność terminów</p>';
+
+                }
+
+               
+
                 // Funkcja sprawdzająca czy slot jest zajęty
+
                 function isSlotBlocked(slotTime) {
+
+                    if (selectedService && selectedService.isSpecial) {
+
+                        return false; // Dla specjalnych nie sprawdzamy kolizji slotów
+
+                    }
+
                     const slotMinutes = timeToMinutes(slotTime);
-                    
+
+                   
+
                     for (const booking of bookings) {
+
+                        if (servicesMap.get(booking.serviceId).isSpecial) continue; // Pomijaj specjalne w kolizjach
+
                         const bookingStart = timeToMinutes(booking.time);
+
                         const bookingEnd = bookingStart + booking.duration;
-                        
+
+                       
+
                         // Jeśli wybraliśmy usługę, sprawdź czy nasza usługa się zmieści
+
                         if (selectedServiceId) {
+
                             const selectedService = servicesMap.get(selectedServiceId);
+
                             if (selectedService) {
+
                                 const ourServiceEnd = slotMinutes + selectedService.duration;
-                                
+
+                               
+
                                 // Sprawdź czy nasza usługa koliduje z istniejącą rezerwacją
+
                                 if ((slotMinutes >= bookingStart && slotMinutes < bookingEnd) ||
+
                                     (ourServiceEnd > bookingStart && ourServiceEnd <= bookingEnd) ||
+
                                     (slotMinutes <= bookingStart && ourServiceEnd >= bookingEnd)) {
+
                                     return true;
+
                                 }
+
                             }
+
                         } else {
+
                             // Jeśli nie wybrano usługi, blokuj tylko dokładnie zajęte sloty
+
                             if (slotMinutes >= bookingStart && slotMinutes < bookingEnd) {
+
                                 return true;
+
                             }
+
                         }
+
                     }
+
                     return false;
+
                 }
-                
+
+               
+
                 // Funkcja konwertująca czas na minuty
+
                 function timeToMinutes(time) {
+
                     const [hours, minutes] = time.split(':').map(Number);
+
                     return hours * 60 + minutes;
+
                 }
-                
+
+               
+
                 timeSlots.forEach(time => {
+
                     const slot = document.createElement('div');
+
                     slot.className = 'time-slot';
+
                     slot.textContent = time;
-                    
+
+                   
+
                     if (isSlotBlocked(time)) {
+
                         slot.classList.add('booked');
+
                         slot.title = 'Termin niedostępny';
+
                     } else {
+
                         // Sprawdź czy usługa zmieści się przed zamknięciem
+
                         if (selectedServiceId) {
+
                             const selectedService = servicesMap.get(selectedServiceId);
+
                             if (selectedService) {
+
                                 const slotMinutes = timeToMinutes(time);
+
                                 const closeMinutes = timeToMinutes(settings.closeTime);
+
                                 if (slotMinutes + selectedService.duration > closeMinutes) {
+
                                     slot.classList.add('booked');
+
                                     slot.title = 'Usługa nie zmieści się przed zamknięciem';
+
                                     return;
+
                                 }
+
                             }
+
                         }
+
                         slot.onclick = () => selectTime(time, slot);
+
                     }
-                    
+
+                   
+
                     container.appendChild(slot);
+
                 });
-                
-                if (!selectedServiceId) {
-                    container.innerHTML = '<p style="color: #e67e22; margin-bottom: 10px;">Wybierz najpierw usługę, aby zobaczyć dokładną dostępność terminów</p>' + container.innerHTML;
-                }
-                
+
+               
+
             } catch (error) {
+
                 console.error('Błąd pobierania rezerwacji:', error);
+
             }
+
         }
 
         function selectTime(time, element) {
-            document.querySelectorAll('.time-slot').forEach(slot => 
+
+            document.querySelectorAll('.time-slot').forEach(slot =>
+
                 slot.classList.remove('selected')
+
             );
-            
+
+           
+
             element.classList.add('selected');
+
             selectedTime = time;
+
         }
 
         // Formularz rezerwacji
+
         document.getElementById('bookingForm').addEventListener('submit', async function(e) {
+
             e.preventDefault();
-            
+
+           
+
             if (!selectedTime) {
+
                 alert('Wybierz godzinę rezerwacji');
+
                 return;
+
             }
-            
+
+           
+
             const email = document.getElementById('clientEmail').value;
+
             const selectedDate = document.getElementById('bookingDate').value;
-            
+
+           
+
             // Sprawdź limit rezerwacji na email
+
             const limitExceeded = await checkEmailLimit(email, selectedDate);
+
             if (limitExceeded) {
+
                 alert('Przekroczono limit 3 rezerwacji na jeden email w tygodniu. Skontaktuj się z nami telefonicznie.');
+
                 return;
+
             }
-            
+
+           
+
             // Sprawdź czy dane auta są wymagane
+
             const serviceId = document.getElementById('serviceSelect').value;
+
             const service = allServices.find(s => s.id === serviceId);
-            
+
+           
+
             if (service && service.requireCarData) {
+
                 const carBrand = document.getElementById('carBrand').value.trim();
+
                 const carModel = document.getElementById('carModel').value.trim();
+
                 const carYear = document.getElementById('carYear').value.trim();
-                
+
+               
+
                 if (!carBrand || !carModel || !carYear) {
+
                     alert('Wypełnij wszystkie dane pojazdu');
+
                     return;
+
                 }
+
             }
-            
+
+           
+
             const submitButton = document.getElementById('submitBooking');
+
             submitButton.disabled = true;
+
             submitButton.textContent = 'Zapisywanie...';
-            
+
+           
+
             const orderNumber = generateOrderNumber();
-            
+
+           
+
             const booking = {
+
                 firstName: document.getElementById('firstName').value,
+
                 lastName: document.getElementById('lastName').value,
+
                 email: email,
+
                 phone: document.getElementById('phone').value,
+
                 serviceId: serviceId,
+
                 date: selectedDate,
+
                 time: selectedTime,
+
                 notes: document.getElementById('clientNotes').value || '',
+
                 orderNumber: orderNumber,
+
                 archived: false,
+
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
+
             };
-            
+
+           
+
             // Dodaj dane auta jeśli są wymagane
+
             if (service && service.requireCarData) {
+
                 booking.carBrand = document.getElementById('carBrand').value.trim();
+
                 booking.carModel = document.getElementById('carModel').value.trim();
+
                 booking.carYear = document.getElementById('carYear').value.trim();
+
             }
-            
+
+           
+
             try {
+
                 await db.collection('bookings').add(booking);
-                
+
+               
+
                 // Wyślij email z potwierdzeniem
+
                 await sendConfirmationEmail(booking, service);
-                
+
+               
+
                 // Pokaż komunikat sukcesu
+
                 document.getElementById('successMessage').style.display = 'block';
-                
+
+               
+
                 // Pokaż numer zamówienia
+
                 const orderDiv = document.getElementById('orderNumber');
+
                 orderDiv.innerHTML = `
+
                     <strong>Twój numer zamówienia: ${orderNumber}</strong><br>
+
                     <small>Zapisz ten numer - będzie potrzebny w przypadku pytań o rezerwację</small>
+
                 `;
+
                 orderDiv.style.display = 'block';
-                
+
+               
+
                 // Ukryj tylko komunikat sukcesu po 3 sekundach
+
                 setTimeout(() => {
+
                     document.getElementById('successMessage').style.display = 'none';
+
                 }, 5000);
-                
+
+               
+
                 // Wyczyść formularz
+
                 this.reset();
+
                 selectedTime = null;
+
                 document.getElementById('carFields').classList.remove('active');
+
+                document.getElementById('serviceDetails').innerHTML = '';
+
                 updateTimeSlots();
-                
+
+               
+
             } catch (error) {
+
                 alert('Błąd podczas zapisywania rezerwacji: ' + error.message);
+
                 console.error(error);
+
             } finally {
+
                 submitButton.disabled = false;
+
                 submitButton.textContent = 'Zarezerwuj termin';
+
             }
+
         });
 
         // Logowanie admina
+
         async function loginAdmin() {
+
             const password = document.getElementById('adminPassword').value;
-            
+
+           
+
             // Pobierz hasło z bazy
+
             try {
+
                 const doc = await db.collection('settings').doc('main').get();
+
                 const savedPassword = doc.data().adminPassword || 'admin';
-                
+
+               
+
                 if (password === savedPassword) {
+
                     isAdminLoggedIn = true;
+
                     document.getElementById('loginForm').style.display = 'none';
+
                     document.getElementById('adminPanel').style.display = 'block';
+
                     updateAdminPanel();
+
                 } else {
+
                     alert('Nieprawidłowe hasło');
+
                 }
+
             } catch (error) {
+
                 alert('Błąd logowania: ' + error.message);
+
             }
+
         }
 
         function logout() {
+
             isAdminLoggedIn = false;
+
             document.getElementById('loginForm').style.display = 'block';
+
             document.getElementById('adminPanel').style.display = 'none';
+
             document.getElementById('adminPassword').value = '';
+
             currentWeekOffset = 0;
+
         }
 
-        // Dodawanie usług
-        async function addService(e) {
+        // Dodawanie lub edycja usług
+
+        async function addOrUpdateService(e) {
+
             e.preventDefault();
-            
+
+           
+
+            const isSpecial = document.getElementById('isSpecial').checked;
+
+           
+
             const service = {
+
                 name: document.getElementById('serviceName').value,
+
                 description: document.getElementById('serviceDescription').value || '',
+
                 price: parseInt(document.getElementById('servicePrice').value),
+
                 duration: parseInt(document.getElementById('serviceDuration').value),
+
                 requireCarData: document.getElementById('requireCarData').checked,
-                color: document.getElementById('serviceColor').value
+
+                color: document.getElementById('serviceColor').value,
+
+                isSpecial: isSpecial,
+
+                executionTime: isSpecial ? parseInt(document.getElementById('executionTime').value) : 0,
+
+                availableDays: getSelectedAvailableDays(),
+
+                availableFrom: document.getElementById('availFrom').value,
+
+                availableTo: document.getElementById('availTo').value
+
             };
-            
+
+           
+
             try {
-                await db.collection('services').add(service);
-                document.getElementById('serviceForm').reset();
-                document.getElementById('serviceColor').value = '#3498db'; // Reset color picker
-                alert('Usługa została dodana!');
+
+                if (editServiceId) {
+
+                    await db.collection('services').doc(editServiceId).update(service);
+
+                    editServiceId = null;
+
+                    document.getElementById('serviceSubmitBtn').textContent = 'Dodaj usługę';
+
+                    alert('Usługa została zaktualizowana!');
+
+                } else {
+
+                    await db.collection('services').add(service);
+
+                    alert('Usługa została dodana!');
+
+                }
+
+                resetServiceForm();
+
             } catch (error) {
-                alert('Błąd dodawania usługi: ' + error.message);
+
+                alert('Błąd: ' + error.message);
+
             }
+
+        }
+
+        function getSelectedAvailableDays() {
+
+            const days = [];
+
+            for (let i = 0; i <= 6; i++) {
+
+                const checkbox = document.getElementById(`availDay-${i}`);
+
+                if (checkbox && checkbox.checked) {
+
+                    days.push(i);
+
+                }
+
+            }
+
+            return days;
+
+        }
+
+        function resetServiceForm() {
+
+            document.getElementById('serviceForm').reset();
+
+            document.getElementById('serviceColor').value = '#3498db';
+
+            document.getElementById('isSpecial').checked = false;
+
+            toggleSpecialFields();
+
+            for (let i = 0; i <= 6; i++) {
+
+                document.getElementById(`availDay-${i}`).checked = false;
+
+            }
+
+            document.getElementById('availFrom').value = '09:00';
+
+            document.getElementById('availTo').value = '18:00';
+
+        }
+
+        async function editService(id) {
+
+            try {
+
+                const doc = await db.collection('services').doc(id).get();
+
+                if (doc.exists) {
+
+                    const service = doc.data();
+
+                    document.getElementById('serviceName').value = service.name;
+
+                    document.getElementById('serviceDescription').value = service.description;
+
+                    document.getElementById('servicePrice').value = service.price;
+
+                    document.getElementById('serviceDuration').value = service.duration;
+
+                    document.getElementById('requireCarData').checked = service.requireCarData;
+
+                    document.getElementById('serviceColor').value = service.color || '#3498db';
+
+                    document.getElementById('isSpecial').checked = service.isSpecial;
+
+                    toggleSpecialFields();
+
+                    document.getElementById('executionTime').value = service.executionTime || 60;
+
+                    for (let i = 0; i <= 6; i++) {
+
+                        document.getElementById(`availDay-${i}`).checked = service.availableDays ? service.availableDays.includes(i) : false;
+
+                    }
+
+                    document.getElementById('availFrom').value = service.availableFrom || '09:00';
+
+                    document.getElementById('availTo').value = service.availableTo || '18:00';
+
+                    editServiceId = id;
+
+                    document.getElementById('serviceSubmitBtn').textContent = 'Zapisz zmiany';
+
+                }
+
+            } catch (error) {
+
+                alert('Błąd ładowania usługi: ' + error.message);
+
+            }
+
         }
 
         function updateAdminPanel() {
+
             updateServiceList();
+
             updateBookingList();
+
             updateCalendar();
+
         }
 
         async function updateServiceList() {
+
             const container = document.getElementById('serviceList');
+
             container.innerHTML = '';
-            
+
+           
+
             try {
+
                 const snapshot = await db.collection('services').orderBy('name').get();
-                
+
+               
+
                 if (snapshot.empty) {
+
                     container.innerHTML = '<p style="color: #999;">Brak usług</p>';
+
                     return;
+
                 }
-                
+
+               
+
                 snapshot.forEach((doc) => {
+
                     const service = doc.data();
+
                     const colorIndicator = service.color ? `<span style="display: inline-block; width: 15px; height: 15px; background: ${service.color}; border-radius: 50%; margin-right: 10px;"></span>` : '';
-                    
+
+                    const specialInfo = service.isSpecial ? '<br><small style="color: #e67e22;">⚠️ Usługa specjalna (8:00, czas wykonania: ' + service.executionTime + ' min)</small>' : '';
+
+                    const daysInfo = service.availableDays && service.availableDays.length > 0 ? '<br><small>Dostępna w dni: ' + service.availableDays.map(d => ['Ndz','Pon','Wt','Śr','Czw','Pt','Sob'][d]).join(', ') + '</small>' : '';
+
+                    const hoursInfo = service.availableFrom && service.availableTo ? '<br><small>Godziny: ' + service.availableFrom + ' - ' + service.availableTo + '</small>' : '';
+
+                   
+
                     const item = document.createElement('div');
+
                     item.className = 'service-item';
+
                     item.innerHTML = `
+
                         <span>
+
                             ${colorIndicator}<strong>${service.name}</strong> - ${service.price} zł (${service.duration} min)
+
                             ${service.requireCarData ? '<br><small style="color: #e67e22;">⚠️ Wymaga danych pojazdu</small>' : ''}
+
+                            ${specialInfo}
+
+                            ${daysInfo}
+
+                            ${hoursInfo}
+
                             ${service.description ? '<div class="service-description">' + service.description + '</div>' : ''}
+
                         </span>
-                        <button class="delete-btn" onclick="deleteService('${doc.id}')">Usuń</button>
+
+                        <div>
+
+                            <button class="edit-btn" onclick="editService('${doc.id}')">Edytuj</button>
+
+                            <button class="delete-btn" onclick="deleteService('${doc.id}')">Usuń</button>
+
+                        </div>
+
                     `;
+
                     container.appendChild(item);
+
                 });
+
             } catch (error) {
+
                 container.innerHTML = '<p style="color: #e74c3c;">Błąd ładowania usług</p>';
+
                 console.error(error);
+
             }
+
         }
 
         async function updateBookingList() {
+
             const activeBookings = allBookings.filter(booking => !booking.archived);
+
             displayFilteredBookings(activeBookings);
+
         }
 
         async function updateCalendar() {
+
             const container = document.getElementById('calendarView');
+
             const today = new Date();
+
             today.setDate(today.getDate() + (currentWeekOffset * 7));
+
             const currentWeek = getWeekDates(today);
-            
+
+           
+
             // Aktualizuj wyświetlanie aktualnego tygodnia
+
             const weekDisplay = document.getElementById('currentWeekDisplay');
+
             const startDate = currentWeek[0];
+
             const endDate = currentWeek[6];
+
             weekDisplay.textContent = `${startDate.getDate()}.${startDate.getMonth() + 1}.${startDate.getFullYear()} - ${endDate.getDate()}.${endDate.getMonth() + 1}.${endDate.getFullYear()}`;
-            
+
+           
+
             let html = '<table class="calendar-table"><tr><th>Godzina</th>';
-            
+
+           
+
             const dayNames = ['Ndz', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob'];
+
             currentWeek.forEach((date) => {
+
                 const dayIndex = date.getDay();
+
                 const isWorkingDay = settings.workingDays.includes(dayIndex);
+
                 html += `<th style="${!isWorkingDay ? 'background: #95a5a6;' : ''}">
+
                     ${dayNames[dayIndex]}<br>${date.getDate()}.${date.getMonth() + 1}
+
                 </th>`;
+
             });
+
             html += '</tr>';
-            
+
+           
+
             try {
+
                 // Pobierz wszystkie rezerwacje na ten tydzień
+
                 const startDateStr = formatDate(currentWeek[0]);
+
                 const endDateStr = formatDate(currentWeek[6]);
-                
+
+               
+
                 const snapshot = await db.collection('bookings')
+
                     .where('date', '>=', startDateStr)
+
                     .where('date', '<=', endDateStr)
+
                     .get();
-                
-                const bookings = {};
+
+               
+
+                const bookingsByTime = {};
+
                 const services = {};
-                
+
+               
+
                 // Pobierz usługi
+
                 const servicesSnapshot = await db.collection('services').get();
+
                 servicesSnapshot.forEach(doc => {
+
                     services[doc.id] = doc.data();
+
                 });
-                
+
+               
+
                 // Organizuj rezerwacje
+
                 snapshot.forEach(doc => {
+
                     const booking = { ...doc.data(), id: doc.id };
+
                     const key = `${booking.date}_${booking.time}`;
-                    bookings[key] = booking;
+
+                    if (!bookingsByTime[key]) bookingsByTime[key] = [];
+
+                    bookingsByTime[key].push(booking);
+
                 });
-                
+
+               
+
                 const timeSlots = generateTimeSlots(settings.openTime, settings.closeTime);
-                
+
+               
+
                 timeSlots.forEach(time => {
+
                     html += `<tr><td style="font-weight: bold;">${time}</td>`;
+
                     currentWeek.forEach(date => {
+
                         const dateStr = formatDate(date);
+
                         const dayIndex = date.getDay();
+
                         const isWorkingDay = settings.workingDays.includes(dayIndex);
-                        
+
+                       
+
                         if (!isWorkingDay) {
+
                             html += '<td style="background: #ecf0f1;"></td>';
+
                         } else {
+
                             const key = `${dateStr}_${time}`;
-                            const booking = bookings[key];
-                            
-                            if (booking) {
+
+                            const bookings = bookingsByTime[key] || [];
+
+                            html += '<td>';
+
+                            bookings.forEach(booking => {
+
                                 const service = services[booking.serviceId];
+
                                 const serviceColor = service && service.color ? service.color : '#3498db';
+
                                 const isArchived = booking.archived;
+
                                 const slotClass = isArchived ? 'booking-slot archived' : 'booking-slot';
+
                                 const slotStyle = isArchived ? '' : `background: ${serviceColor};`;
-                                
-                                html += `<td>
+
+                               
+
+                                html += `
+
                                     <div class="${slotClass}" style="${slotStyle}" onclick="openEditModal('${booking.id}', true)">
+
                                         ${booking.firstName} ${booking.lastName.charAt(0)}.<br>
+
                                         ${service ? service.name : ''}
+
                                         ${booking.orderNumber ? '<br><small>' + booking.orderNumber + '</small>' : ''}
+
                                         ${isArchived ? '<br><small>📁</small>' : ''}
+
                                     </div>
-                                </td>`;
-                            } else {
-                                html += '<td></td>';
-                            }
+
+                                `;
+
+                            });
+
+                            html += '</td>';
+
                         }
+
                     });
+
                     html += '</tr>';
+
                 });
-                
+
+               
+
                 html += '</table>';
+
                 container.innerHTML = html;
-                
+
+               
+
             } catch (error) {
+
                 container.innerHTML = '<p style="color: #e74c3c;">Błąd ładowania kalendarza</p>';
+
                 console.error(error);
+
             }
+
         }
 
         function getWeekDates(date) {
+
             const week = [];
+
             const startOfWeek = new Date(date);
+
             const day = startOfWeek.getDay();
+
             const diff = startOfWeek.getDate() - day;
+
             startOfWeek.setDate(diff);
-            
+
+           
+
             for (let i = 0; i < 7; i++) {
+
                 week.push(new Date(startOfWeek));
+
                 startOfWeek.setDate(startOfWeek.getDate() + 1);
+
             }
-            
+
+           
+
             return week;
+
         }
 
         function formatDate(date) {
+
             const year = date.getFullYear();
+
             const month = String(date.getMonth() + 1).padStart(2, '0');
+
             const day = String(date.getDate()).padStart(2, '0');
+
             return `${year}-${month}-${day}`;
+
         }
 
         async function deleteService(id) {
+
             if (confirm('Czy na pewno chcesz usunąć tę usługę?')) {
+
                 try {
+
                     await db.collection('services').doc(id).delete();
+
                     alert('Usługa została usunięta');
+
                 } catch (error) {
+
                     alert('Błąd usuwania usługi: ' + error.message);
+
                 }
+
             }
+
         }
 
         async function deleteBooking(id) {
+
             if (confirm('Czy na pewno chcesz usunąć tę rezerwację?')) {
+
                 try {
+
                     await db.collection('bookings').doc(id).delete();
+
                     alert('Rezerwacja została usunięta');
+
                 } catch (error) {
+
                     alert('Błąd usuwania rezerwacji: ' + error.message);
+
                 }
+
             }
+
         }
 
         async function showBookingDetails(id) {
+
             try {
+
                 const doc = await db.collection('bookings').doc(id).get();
+
                 if (doc.exists) {
+
                     const booking = doc.data();
+
                     const serviceDoc = await db.collection('services').doc(booking.serviceId).get();
+
                     const service = serviceDoc.exists ? serviceDoc.data() : null;
-                    
+
+                   
+
                     let details = `Rezerwacja:
+
 Klient: ${booking.firstName} ${booking.lastName}
+
 Email: ${booking.email}
+
 Telefon: ${booking.phone}
+
 Usługa: ${service ? service.name : 'Usługa usunięta'}
+
 Data: ${booking.date}
+
 Godzina: ${booking.time}`;
-                    
+
+                   
+
                     if (booking.carBrand || booking.carModel || booking.carYear) {
+
                         details += `\nPojazd: ${booking.carBrand || ''} ${booking.carModel || ''} ${booking.carYear || ''}`;
+
                     }
-                    
+
+                   
+
                     if (booking.orderNumber) {
+
                         details += `\nNumer zamówienia: ${booking.orderNumber}`;
+
                     }
-                    
+
+                   
+
                     if (booking.notes) {
+
                         details += `\nUwagi: ${booking.notes}`;
+
                     }
-                    
+
+                   
+
                     alert(details);
+
                 }
+
             } catch (error) {
+
                 console.error('Błąd pobierania szczegółów:', error);
+
             }
+
         }
+
     </script>
+
 </body>
+
 </html>
